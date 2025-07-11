@@ -6,24 +6,91 @@
     <title>نظام إدارة المركز التعليمي</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <style>
-        body { background-color: #f8f9fa; font-family: 'Tajawal', sans-serif; }
+        body { 
+            background-color: #f8f9fa; 
+            font-family: 'Tajawal', sans-serif; 
+        }
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
         
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #343a40; display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        #login-box { background: white; padding: 2rem; border-radius: 0.5rem; width: 100%; max-width: 400px; box-shadow: 0 0 15px rgba(0,0,0,0.2); }
+        #login-screen { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: #343a40; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 9999; 
+        }
+        #login-box { 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 0.5rem; 
+            width: 100%; 
+            max-width: 400px; 
+            box-shadow: 0 0 15px rgba(0,0,0,0.2); 
+        }
         #app-wrapper { display: none; }
         .main-content .page { display: none; }
         .main-content .page.active { display: block; }
-        .sidebar { height: 100vh; position: sticky; top: 0; background-color: #343a40; color: white; overflow-y: auto; }
-        .sidebar .nav-link { color: #adb5bd; cursor: pointer; border-radius: 0.25rem; margin-bottom: 0.25rem; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: white; background-color: #495057; }
-        .stat-card { border: none; border-radius: 0.5rem; color: white; }
+        
+        /* Desktop Sidebar */
+        .sidebar { 
+            height: calc(100vh - 56px); /* Adjust height for sticky top navbar */
+            position: sticky; 
+            top: 56px; /* Height of the navbar */
+            background-color: #343a40; 
+            color: white; 
+            overflow-y: auto; 
+        }
+        .sidebar .nav-link { 
+            color: #adb5bd; 
+            cursor: pointer; 
+            border-radius: 0.25rem; 
+            margin-bottom: 0.25rem; 
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link i {
+            margin-left: 10px;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { 
+            color: white; 
+            background-color: #495057; 
+        }
+
+        /* Mobile Offcanvas Sidebar */
+        .offcanvas-body .nav-link {
+             color: #adb5bd; 
+             font-size: 1.1rem;
+             padding: 0.75rem 1rem;
+        }
+         .offcanvas-body .nav-link:hover, .offcanvas-body .nav-link.active {
+            color: white; 
+            background-color: #495057; 
+         }
+
+        .stat-card { 
+            border: none; 
+            border-radius: 0.5rem; 
+            color: white; 
+            transition: transform 0.2s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
         .card-icon { font-size: 3rem; opacity: 0.7; }
         #receipt-modal-content { font-family: 'Courier New', Courier, monospace; text-align: center; }
         .table-responsive { max-height: 450px; overflow-y: auto; }
         .card { border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .navbar-brand {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -41,20 +108,49 @@
 </div>
 
 <div id="app-wrapper">
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-dark bg-dark sticky-top flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">إدارة المركز</a>
+        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobile-sidebar" aria-controls="mobile-sidebar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </nav>
+
+    <!-- Mobile Sidebar (Offcanvas) -->
+    <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="mobile-sidebar" aria-labelledby="mobile-sidebar-label">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="mobile-sidebar-label">القائمة</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="nav flex-column">
+                <li class="nav-item"><a class="nav-link active" onclick="showPage('dashboard')" data-bs-dismiss="offcanvas"><i class="bi bi-grid-1x2-fill"></i> لوحة التحكم</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showPage('teachers')" data-bs-dismiss="offcanvas"><i class="bi bi-person-video3"></i> المدرسون</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showPage('groups')" data-bs-dismiss="offcanvas"><i class="bi bi-collection-fill"></i> المجموعات</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showPage('students')" data-bs-dismiss="offcanvas"><i class="bi bi-people-fill"></i> الطلاب</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showPage('attendance')" data-bs-dismiss="offcanvas"><i class="bi bi-check-circle-fill"></i> الحضور والغياب</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showPage('grades')" data-bs-dismiss="offcanvas"><i class="bi bi-pencil-square"></i> الامتحانات والدرجات</a></li>
+                <li class="nav-item"><a class="nav-link" onclick="showPage('finance')" data-bs-dismiss="offcanvas"><i class="bi bi-cash-stack"></i> الإدارة المالية</a></li>
+                <li class="nav-item mt-3"><a class="nav-link text-warning" onclick="logout()" data-bs-dismiss="offcanvas"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</a></li>
+                <li class="nav-item"><a class="nav-link text-danger" onclick="clearData()" data-bs-dismiss="offcanvas"><i class="bi bi-trash-fill"></i> مسح كل البيانات</a></li>
+            </ul>
+        </div>
+    </div>
+
     <div class="container-fluid">
         <div class="row">
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar p-3">
-                <h4 class="text-center mb-4">إدارة المركز</h4>
+            <!-- Desktop Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-none d-md-block sidebar p-3">
                 <ul class="nav flex-column">
-                    <li class="nav-item"><a class="nav-link active" onclick="showPage('dashboard')">📊 لوحة التحكم</a></li>
-                    <li class="nav-item"><a class="nav-link" onclick="showPage('teachers')">👨‍🏫 المدرسون</a></li>
-                    <li class="nav-item"><a class="nav-link" onclick="showPage('groups')">📚 المجموعات</a></li>
-                    <li class="nav-item"><a class="nav-link" onclick="showPage('students')">🧑‍🎓 الطلاب</a></li>
-                    <li class="nav-item"><a class="nav-link" onclick="showPage('attendance')">✅ الحضور والغياب</a></li>
-                    <li class="nav-item"><a class="nav-link" onclick="showPage('grades')">📝 الامتحانات والدرجات</a></li>
-                    <li class="nav-item"><a class="nav-link" onclick="showPage('finance')">💵 الإدارة المالية</a></li>
-                    <li class="nav-item"><a class="nav-link text-warning" onclick="logout()">🔒 تسجيل الخروج</a></li>
-                    <li class="nav-item"><a class="nav-link text-danger" onclick="clearData()">🗑️ مسح كل البيانات</a></li>
+                    <li class="nav-item"><a class="nav-link active" onclick="showPage('dashboard')"><i class="bi bi-grid-1x2-fill"></i> لوحة التحكم</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showPage('teachers')"><i class="bi bi-person-video3"></i> المدرسون</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showPage('groups')"><i class="bi bi-collection-fill"></i> المجموعات</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showPage('students')"><i class="bi bi-people-fill"></i> الطلاب</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showPage('attendance')"><i class="bi bi-check-circle-fill"></i> الحضور والغياب</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showPage('grades')"><i class="bi bi-pencil-square"></i> الامتحانات والدرجات</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showPage('finance')"><i class="bi bi-cash-stack"></i> الإدارة المالية</a></li>
+                     <li class="nav-item mt-3"><a class="nav-link text-warning" onclick="logout()"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" onclick="clearData()"><i class="bi bi-trash-fill"></i> مسح كل البيانات</a></li>
                 </ul>
             </nav>
 
@@ -63,28 +159,28 @@
                 <div id="dashboard" class="page active">
                     <h3>لوحة التحكم</h3>
                     <div class="row mt-4">
-                        <div class="col-lg-3 col-md-6"><div class="card stat-card bg-primary p-3 mb-3"><div class="d-flex justify-content-between align-items-center"><div><h5>الطلاب</h5><h2 id="total-students-stat">0</h2></div><div class="card-icon">🧑‍🎓</div></div></div></div>
-                        <div class="col-lg-3 col-md-6"><div class="card stat-card bg-info p-3 mb-3"><div class="d-flex justify-content-between align-items-center"><div><h5>المدرسون</h5><h2 id="total-teachers-stat">0</h2></div><div class="card-icon">👨‍🏫</div></div></div></div>
-                        <div class="col-lg-3 col-md-6"><div class="card stat-card bg-secondary p-3 mb-3"><div class="d-flex justify-content-between align-items-center"><div><h5>المجموعات</h5><h2 id="total-groups-stat">0</h2></div><div class="card-icon">📚</div></div></div></div>
-                        <div class="col-lg-3 col-md-6"><div class="card stat-card bg-success p-3 mb-3"><div class="d-flex justify-content-between align-items-center"><div><h5>الإيرادات</h5><h2 id="total-revenue-stat">0</h2></div><div class="card-icon">💵</div></div></div></div>
+                        <div class="col-lg-3 col-md-6 mb-4"><div class="card stat-card bg-primary p-3"><div class="d-flex justify-content-between align-items-center"><div><h5>الطلاب</h5><h2 id="total-students-stat">0</h2></div><div class="card-icon">🧑‍🎓</div></div></div></div>
+                        <div class="col-lg-3 col-md-6 mb-4"><div class="card stat-card bg-info p-3"><div class="d-flex justify-content-between align-items-center"><div><h5>المدرسون</h5><h2 id="total-teachers-stat">0</h2></div><div class="card-icon">👨‍🏫</div></div></div></div>
+                        <div class="col-lg-3 col-md-6 mb-4"><div class="card stat-card bg-secondary p-3"><div class="d-flex justify-content-between align-items-center"><div><h5>المجموعات</h5><h2 id="total-groups-stat">0</h2></div><div class="card-icon">📚</div></div></div></div>
+                        <div class="col-lg-3 col-md-6 mb-4"><div class="card stat-card bg-success p-3"><div class="d-flex justify-content-between align-items-center"><div><h5>الإيرادات</h5><h2 id="total-revenue-stat">0</h2></div><div class="card-icon">💵</div></div></div></div>
                     </div>
                 </div>
                 
                 <div id="teachers" class="page">
-                    <h3>إدارة المدرسين</h3>
-                    <div class="card p-3 mb-4"><form id="add-teacher-form" class="row align-items-end"><div class="col-md-5"><label class="form-label">اسم المدرس</label><input type="text" id="teacher-name" class="form-control" required></div><div class="col-md-4"><label class="form-label">المادة</label><input type="text" id="teacher-subject" class="form-control" required></div><div class="col-md-2"><label class="form-label">النسبة (%)</label><input type="number" id="teacher-percentage" class="form-control" required min="0" max="100"></div><div class="col-md-1"><button type="submit" class="btn btn-primary w-100">إضافة</button></div></form></div>
+                     <h3>إدارة المدرسين</h3>
+                    <div class="card p-3 mb-4"><form id="add-teacher-form" class="row g-3 align-items-end"><div class="col-md-5"><label class="form-label">اسم المدرس</label><input type="text" id="teacher-name" class="form-control" required></div><div class="col-md-4"><label class="form-label">المادة</label><input type="text" id="teacher-subject" class="form-control" required></div><div class="col-md-2"><label class="form-label">النسبة (%)</label><input type="number" id="teacher-percentage" class="form-control" required min="0" max="100"></div><div class="col-md-1"><button type="submit" class="btn btn-primary w-100">إضافة</button></div></form></div>
                     <div class="card p-3"><h5 class="card-title">قائمة المدرسين</h5><div class="table-responsive"><table class="table table-striped"><thead><tr><th>الاسم</th><th>المادة</th><th>النسبة</th><th>إجراءات</th></tr></thead><tbody id="teachers-table-body"></tbody></table></div></div>
                 </div>
 
                 <div id="groups" class="page">
                     <h3>إدارة المجموعات</h3>
-                    <div class="card p-3 mb-4"><form id="add-group-form" class="row align-items-end"><div class="col-md-4"><label class="form-label">اسم المجموعة</label><input type="text" id="group-name" class="form-control" required></div><div class="col-md-3"><label class="form-label">المدرس</label><select id="group-teacher" class="form-select" required></select></div><div class="col-md-4"><label class="form-label">المواعيد</label><input type="text" id="group-schedule" class="form-control" placeholder="مثال: سبت - اثنين (5م)" required></div><div class="col-md-1"><button type="submit" class="btn btn-primary w-100">إنشاء</button></div></form></div>
+                    <div class="card p-3 mb-4"><form id="add-group-form" class="row g-3 align-items-end"><div class="col-md-4"><label class="form-label">اسم المجموعة</label><input type="text" id="group-name" class="form-control" required></div><div class="col-md-3"><label class="form-label">المدرس</label><select id="group-teacher" class="form-select" required></select></div><div class="col-md-4"><label class="form-label">المواعيد</label><input type="text" id="group-schedule" class="form-control" placeholder="مثال: سبت - اثنين (5م)" required></div><div class="col-md-1"><button type="submit" class="btn btn-primary w-100">إنشاء</button></div></form></div>
                     <div class="card p-3"><h5 class="card-title">قائمة المجموعات</h5><div class="table-responsive"><table class="table table-striped"><thead><tr><th>اسم المجموعة</th><th>المدرس</th><th>المواعيد</th><th>إجراءات</th></tr></thead><tbody id="groups-table-body"></tbody></table></div></div>
                 </div>
 
                 <div id="students" class="page">
                     <h3>إدارة الطلاب</h3>
-                    <div class="card p-3 mb-4"><form id="add-student-form" class="row align-items-end"><div class="col-md-3"><label class="form-label">اسم الطالب</label><input type="text" id="name" class="form-control" required></div><div class="col-md-3"><label class="form-label">المرحلة</label><input type="text" id="stage" class="form-control" required></div><div class="col-md-3"><label class="form-label">هاتف ولي الأمر</label><input type="tel" id="parentPhone" class="form-control" required></div><div class="col-md-2"><label class="form-label">المجموعة</label><select id="student-group" class="form-select" required></select></div><div class="col-md-1"><button type="submit" class="btn btn-primary w-100">إضافة</button></div></form></div>
+                    <div class="card p-3 mb-4"><form id="add-student-form" class="row g-3 align-items-end"><div class="col-md-3"><label class="form-label">اسم الطالب</label><input type="text" id="name" class="form-control" required></div><div class="col-md-3"><label class="form-label">المرحلة</label><input type="text" id="stage" class="form-control" required></div><div class="col-md-3"><label class="form-label">هاتف ولي الأمر</label><input type="tel" id="parentPhone" class="form-control" required></div><div class="col-md-2"><label class="form-label">المجموعة</label><select id="student-group" class="form-select" required></select></div><div class="col-md-1"><button type="submit" class="btn btn-primary w-100">إضافة</button></div></form></div>
                     <div class="card p-3"><h5 class="card-title">قائمة الطلاب</h5><input type="text" id="search-student" class="form-control mb-3" placeholder="ابحث بالاسم أو الكود..."><div class="table-responsive"><table class="table table-striped"><thead><tr><th>الاسم</th><th>الكود</th><th>المجموعة</th><th>المرحلة</th><th>إجراءات</th></tr></thead><tbody id="students-table-body"></tbody></table></div></div>
                 </div>
 
@@ -98,7 +194,7 @@
                     </div>
                      <div class="card p-3">
                         <h5 class="card-title">سجل الحضور</h5>
-                        <div class="row mb-3">
+                        <div class="row mb-3 g-3">
                             <div class="col-md-4"><label class="form-label">فلترة بالتاريخ</label><input type="date" id="attendance-date-filter" class="form-control"></div>
                         </div>
                         <div class="table-responsive">
@@ -114,10 +210,10 @@
                     <h3>الامتحانات والدرجات</h3>
                     <div class="card p-3 mb-4">
                         <h5>إضافة امتحان جديد</h5>
-                        <form id="add-exam-form" class="row align-items-end">
+                        <form id="add-exam-form" class="row g-3 align-items-end">
                             <div class="col-md-5"><label class="form-label">اختر المجموعة</label><select id="exam-group" class="form-select" required></select></div>
                             <div class="col-md-5"><label class="form-label">اسم الامتحان</label><input type="text" id="exam-name" class="form-control" placeholder="مثال: امتحان شهر أكتوبر" required></div>
-                            <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">بدء رصد الدرجات</button></div>
+                            <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">بدء الرصد</button></div>
                         </form>
                     </div>
                     <div class="card p-3 mb-4" id="grades-entry-card" style="display:none;">
@@ -127,7 +223,7 @@
                     </div>
                      <div class="card p-3">
                         <h5 class="card-title">عرض نتائج الامتحانات</h5>
-                        <div class="row mb-3 align-items-end">
+                        <div class="row g-3 mb-3 align-items-end">
                             <div class="col-md-5"><label class="form-label">اختر المجموعة</label><select id="view-exam-group-filter" class="form-select"></select></div>
                             <div class="col-md-5"><label class="form-label">اختر الامتحان</label><select id="view-exam-filter" class="form-select"></select></div>
                         </div>
@@ -142,15 +238,15 @@
 
                 <div id="finance" class="page">
                     <h3>الإدارة المالية</h3>
-                    <div class="card p-3 mb-4"><form id="add-payment-form" class="row align-items-end"><div class="col-md-5"><label class="form-label">كود الطالب</label><input type="text" class="form-control" id="payment-student-id" required></div><div class="col-md-5"><label class="form-label">المبلغ المدفوع</label><input type="number" class="form-control" id="payment-amount" required></div><div class="col-md-2"><button type="submit" class="btn btn-success w-100">تسجيل</button></div></form></div>
+                    <div class="card p-3 mb-4"><form id="add-payment-form" class="row g-3 align-items-end"><div class="col-md-5"><label class="form-label">كود الطالب</label><input type="text" class="form-control" id="payment-student-id" required></div><div class="col-md-5"><label class="form-label">المبلغ المدفوع</label><input type="number" class="form-control" id="payment-amount" required></div><div class="col-md-2"><button type="submit" class="btn btn-success w-100">تسجيل</button></div></form></div>
                     <div class="card p-3"><h5 class="card-title">حسابات المدرسين</h5><div class="table-responsive"><table class="table table-striped"><thead><tr><th>المدرس</th><th>إجمالي الإيرادات</th><th>نسبة المدرس</th><th>مستحقات المدرس</th></tr></thead><tbody id="teacher-finances-table-body"></tbody></table></div></div>
                 </div>
                 
                  <div id="student-details" class="page">
-                    <button class="btn btn-secondary mb-3" onclick="showPage('students')">العودة إلى قائمة الطلاب</button>
+                    <button class="btn btn-secondary mb-3" onclick="showPage('students')"><i class="bi bi-arrow-right"></i> العودة إلى قائمة الطلاب</button>
                     <h3 id="student-details-name"></h3>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-4">
                             <div class="card p-3">
                                 <h5 class="card-title">سجل الحضور</h5>
                                 <div class="table-responsive">
@@ -161,7 +257,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 mb-4">
                             <div class="card p-3">
                                 <h5 class="card-title">سجل الدرجات</h5>
                                 <div class="table-responsive">
@@ -187,7 +283,7 @@
 // ===== CONFIGURATION =====
 const CORRECT_USERNAME = 'admin';
 const CORRECT_PASSWORD = '123';
-let currentStudentDetailsId = null; // To store the ID of the student being viewed
+let currentStudentDetailsId = null; 
 
 // ===== AUTH LOGIC =====
 function handleLogin(e) { e.preventDefault(); if (document.getElementById('username').value === CORRECT_USERNAME && document.getElementById('password').value === CORRECT_PASSWORD) { sessionStorage.setItem('isLoggedIn', 'true'); checkLogin(); } else { document.getElementById('login-error').style.display = 'block'; } }
@@ -202,16 +298,20 @@ const DB = {
 
 // ===== UI LOGIC =====
 function showPage(pageId, studentId = null) {
-    currentStudentDetailsId = studentId; // Store studentId if provided
+    currentStudentDetailsId = studentId; 
     document.querySelectorAll('.main-content .page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
     
-    document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
-    // Handle student details page not having a direct nav link
-    const navLink = document.querySelector(`.sidebar .nav-link[onclick*="showPage('${pageId}')"]`);
-    if (navLink) {
-        navLink.classList.add('active');
-    }
+    // Update active state for both sidebars
+    const navLinks = document.querySelectorAll('.sidebar .nav-link, .offcanvas-body .nav-link');
+    navLinks.forEach(l => l.classList.remove('active'));
+    
+    const activeLinks = document.querySelectorAll(`.nav-link[onclick*="showPage('${pageId}')"]`);
+    activeLinks.forEach(link => {
+        if (!link.closest('#student-details')) { // Don't highlight a main nav link for details page
+             link.classList.add('active');
+        }
+    });
 
     // Refresh data when showing a page
     if (pageId === 'dashboard') renderDashboard();
@@ -273,7 +373,7 @@ function renderStudentsTable(filter = '') {
             <td>${group ? group.name : 'بلا مجموعة'}</td>
             <td>${s.stage}</td>
             <td>
-                <button class="btn btn-info btn-sm" onclick="showPage('student-details', '${s.id}')">عرض التفاصيل</button>
+                <button class="btn btn-info btn-sm" onclick="showPage('student-details', '${s.id}')">التفاصيل</button>
                 <button class="btn btn-danger btn-sm" onclick="deleteData('students', '${s.id}')">حذف</button>
             </td>
         </tr>`;
@@ -330,7 +430,7 @@ function populateExamFilter() {
             examSelect.innerHTML += `<option value="${ex.id}">${ex.name}</option>`;
         });
     }
-    renderExamResults(); // Refresh results when group changes
+    renderExamResults(); 
 }
 
 function renderExamResults() {
@@ -363,7 +463,6 @@ function renderStudentDetails() {
 
     document.getElementById('student-details-name').innerText = `تفاصيل الطالب: ${student.name}`;
     
-    // Render Attendance
     const attendanceBody = document.getElementById('student-attendance-body');
     attendanceBody.innerHTML = '';
     DB.get('attendance')
@@ -374,7 +473,6 @@ function renderStudentDetails() {
             attendanceBody.innerHTML += `<tr><td>${aDate.toLocaleDateString('ar-EG')}</td><td>${aDate.toLocaleTimeString('ar-EG')}</td></tr>`;
         });
 
-    // Render Grades
     const gradesBody = document.getElementById('student-grades-body');
     gradesBody.innerHTML = '';
     DB.get('exams').forEach(exam => {
@@ -425,7 +523,7 @@ function addPayment(e) {
     const newPayment = { studentId: student.id, amount: parseFloat(document.getElementById('payment-amount').value), date: new Date().toISOString() };
     addData('payments', newPayment);
     
-    document.getElementById('receipt-modal-content').innerHTML = `<h5>${DB.get('settings')[0]?.centerName || 'المركز التعليمي'}</h5><p>-------------------------</p><p><strong>الطالب:</strong> ${student.name}</p><p><strong>المبلغ:</strong> ${newPayment.amount.toFixed(2)} ج</p><p>-------------------------</p><p>شكرًا لكم!</p>`;
+    document.getElementById('receipt-modal-content').innerHTML = `<h5>${DB.get('settings')?.[0]?.centerName || 'المركز التعليمي'}</h5><p>-------------------------</p><p><strong>الطالب:</strong> ${student.name}</p><p><strong>المبلغ:</strong> ${newPayment.amount.toFixed(2)} ج</p><p>-------------------------</p><p>شكرًا لكم!</p>`;
     new bootstrap.Modal(document.getElementById('receiptModal')).show();
     
     e.target.reset();
@@ -445,12 +543,11 @@ function handleAttendance(e) {
         };
         addData('attendance', attendanceRecord);
         feedbackEl.innerHTML = `<div class="alert alert-success"><strong>حضور:</strong> ${student.name}<br><strong>الوقت:</strong> ${new Date().toLocaleTimeString()}</div>`;
-        renderAttendanceLog(); // Refresh the log
+        renderAttendanceLog(); 
     } else {
         feedbackEl.innerHTML = `<div class="alert alert-danger"><strong>خطأ:</strong> الطالب غير مسجل.</div>`;
     }
-    setTimeout(() => { e.target.value = ''; feedbackEl.innerHTML = ''; }, 3000);
-    document.getElementById('barcode-input').focus();
+    setTimeout(() => { e.target.value = ''; feedbackEl.innerHTML = ''; e.target.focus(); }, 3000);
 }
 
 function startGradesEntry(e) {
@@ -496,7 +593,7 @@ function saveGrades() {
     alert('تم حفظ الدرجات بنجاح!');
     document.getElementById('grades-entry-card').style.display = 'none';
     document.getElementById('add-exam-form').reset();
-    populateExamFilter(); // Refresh the exam list
+    populateExamFilter(); 
 }
 
 function deleteData(key, id) {
@@ -505,7 +602,6 @@ function deleteData(key, id) {
         data = data.filter(item => item.id !== id);
         DB.save(key, data);
         
-        // Cascade delete for related data
         if (key === 'students') {
             let attendance = DB.get('attendance').filter(a => a.studentId !== id);
             DB.save('attendance', attendance);
@@ -516,7 +612,7 @@ function deleteData(key, id) {
             DB.save('exams', exams);
         }
 
-        showPage(document.querySelector('.main-content .page.active').id); // Refresh view
+        showPage(document.querySelector('.main-content .page.active').id); 
     }
 }
 
