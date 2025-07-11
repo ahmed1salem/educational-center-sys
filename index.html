@@ -8,400 +8,347 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
     
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .main-content .page {
-            display: none; /* Hide all pages by default */
-        }
-        .main-content .page.active {
-            display: block; /* Show only the active page */
-        }
-        .sidebar {
-            height: 100vh;
-            position: sticky;
-            top: 0;
-            background-color: #343a40;
-            color: white;
-        }
-        .sidebar .nav-link {
-            color: #adb5bd;
-            cursor: pointer;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: white;
-            background-color: #495057;
-        }
-        .stat-card {
-            border: none;
-            border-radius: 0.5rem;
-            color: white;
-        }
-        .card-icon {
-            font-size: 3rem;
-            opacity: 0.7;
-        }
-        #receipt-modal-content {
-            font-family: 'Courier New', Courier, monospace;
-            text-align: center;
-        }
+        body { background-color: #f8f9fa; }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #343a40; display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        #login-box { background: white; padding: 2rem; border-radius: 0.5rem; width: 100%; max-width: 400px; }
+        #app-wrapper { display: none; }
+        .main-content .page { display: none; }
+        .main-content .page.active { display: block; }
+        .sidebar { height: 100vh; position: sticky; top: 0; background-color: #343a40; color: white; overflow-y: auto; }
+        .sidebar .nav-link { color: #adb5bd; cursor: pointer; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: white; background-color: #495057; }
+        .stat-card { border: none; border-radius: 0.5rem; color: white; }
+        .card-icon { font-size: 3rem; opacity: 0.7; }
+        #receipt-modal-content { font-family: 'Courier New', Courier, monospace; text-align: center; }
+        .table-responsive { max-height: 400px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-<div class="container-fluid">
-    <div class="row">
-        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar p-3">
-            <h4 class="text-center mb-4">إدارة المركز</h4>
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link active" onclick="showPage('dashboard')">📊 لوحة التحكم</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="showPage('students')">🧑‍🎓 شؤون الطلاب</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="showPage('attendance')">✅ الحضور والغياب</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" onclick="showPage('finance')">💵 الإدارة المالية</a>
-                </li>
-                 <li class="nav-item">
-                    <a class="nav-link text-danger" onclick="clearData()">🗑️ مسح كل البيانات</a>
-                </li>
-            </ul>
-        </nav>
-
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4 main-content">
-            
-            <div id="dashboard" class="page active">
-                <h3>لوحة التحكم</h3>
-                <div class="row mt-4">
-                    <div class="col-md-4">
-                        <div class="card stat-card bg-primary p-3 mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5>إجمالي الطلاب</h5>
-                                    <h2 id="total-students-stat">0</h2>
-                                </div>
-                                <div class="card-icon">🧑‍🎓</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card stat-card bg-success p-3 mb-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5>إجمالي الإيرادات</h5>
-                                    <h2 id="total-revenue-stat">0</h2>
-                                </div>
-                                <div class="card-icon">💵</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="students" class="page">
-                <h3>إدارة الطلاب</h3>
-                <div class="card p-3 mb-4">
-                    <h5>إضافة طالب جديد</h5>
-                    <form id="add-student-form">
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="name" class="form-label">اسم الطالب</label>
-                                <input type="text" id="name" class="form-control" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="stage" class="form-label">المرحلة الدراسية</label>
-                                <input type="text" id="stage" class="form-control" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="parentPhone" class="form-label">هاتف ولي الأمر</label>
-                                <input type="tel" id="parentPhone" class="form-control" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary">إضافة الطالب</button>
-                    </form>
-                </div>
-                <div class="card p-3">
-                    <h5>قائمة الطلاب</h5>
-                    <input type="text" id="search-student" class="form-control mb-3" placeholder="ابحث بالاسم أو الكود...">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>الاسم</th>
-                                <th>الكود (للباركود)</th>
-                                <th>المرحلة</th>
-                                <th>هاتف ولي الأمر</th>
-                                <th>إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="students-table-body">
-                           </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="attendance" class="page">
-                <h3>تسجيل الحضور (باستخدام قارئ الباركود)</h3>
-                <div class="card p-3">
-                    <p>قم بتوجيه قارئ الباركود نحو حقل الإدخال أدناه. سيتم تسجيل الحضور تلقائياً.</p>
-                    <input type="text" id="barcode-input" class="form-control form-control-lg" placeholder="في انتظار قراءة الباركود...">
-                    <div id="attendance-feedback" class="mt-3"></div>
-                </div>
-            </div>
-
-            <div id="finance" class="page">
-                <h3>الإدارة المالية</h3>
-                <div class="card p-3">
-                     <h5>تسجيل دفعة جديدة</h5>
-                     <form id="add-payment-form">
-                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="payment-student-id" class="form-label">كود الطالب</label>
-                                <input type="text" class="form-control" id="payment-student-id" required>
-                            </div>
-                             <div class="col-md-6 mb-3">
-                                <label for="payment-amount" class="form-label">المبلغ المدفوع</label>
-                                <input type="number" class="form-control" id="payment-amount" required>
-                            </div>
-                         </div>
-                         <button type="submit" class="btn btn-success">تسجيل وطباعة الإيصال</button>
-                     </form>
-                </div>
-            </div>
-
-        </main>
+<div id="login-screen">
+    <div id="login-box" class="text-center">
+        <h3 class="mb-4">تسجيل الدخول</h3>
+        <form id="login-form">
+            <div class="form-floating mb-3"><input type="text" class="form-control" id="username" placeholder="Username" required><label for="username">اسم المستخدم</label></div>
+            <div class="form-floating mb-3"><input type="password" class="form-control" id="password" placeholder="Password" required><label for="password">كلمة المرور</label></div>
+            <button type="submit" class="btn btn-primary w-100">دخول</button>
+            <div id="login-error" class="text-danger mt-2" style="display: none;">اسم المستخدم أو كلمة المرور غير صحيحة.</div>
+        </form>
     </div>
 </div>
 
-<div class="modal fade" id="receiptModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">إيصال استلام</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" id="receipt-modal-content">
+<div id="app-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar p-3">
+                <h4 class="text-center mb-4">إدارة المركز</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item"><a class="nav-link active" onclick="showPage('dashboard')">📊 لوحة التحكم</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showPage('teachers')">👨‍🏫 المدرسون</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showPage('groups')">📚 المجموعات والحصص</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showPage('students')">🧑‍🎓 شؤون الطلاب</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showPage('attendance')">✅ الحضور والغياب</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showPage('grades')">📝 الامتحانات والدرجات</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="showPage('finance')">💵 الإدارة المالية</a></li>
+                    <li class="nav-item"><a class="nav-link text-warning" onclick="logout()">🔒 تسجيل الخروج</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" onclick="clearData()">🗑️ مسح كل البيانات</a></li>
+                </ul>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4 main-content">
+                
+                <div id="dashboard" class="page active">
+                    <h3>لوحة التحكم</h3>
+                    <div class="row mt-4">
+                        <div class="col-lg-3 col-md-6"><div class="card stat-card bg-primary p-3 mb-3"><div class="d-flex justify-content-between align-items-center"><div><h5>الطلاب</h5><h2 id="total-students-stat">0</h2></div><div class="card-icon">🧑‍🎓</div></div></div></div>
+                        <div class="col-lg-3 col-md-6"><div class="card stat-card bg-info p-3 mb-3"><div class="d-flex justify-content-between align-items-center"><div><h5>المدرسون</h5><h2 id="total-teachers-stat">0</h2></div><div class="card-icon">👨‍🏫</div></div></div></div>
+                        <div class="col-lg-3 col-md-6"><div class="card stat-card bg-secondary p-3 mb-3"><div class="d-flex justify-content-between align-items-center"><div><h5>المجموعات</h5><h2 id="total-groups-stat">0</h2></div><div class="card-icon">📚</div></div></div></div>
+                        <div class="col-lg-3 col-md-6"><div class="card stat-card bg-success p-3 mb-3"><div class="d-flex justify-content-between align-items-center"><div><h5>الإيرادات</h5><h2 id="total-revenue-stat">0</h2></div><div class="card-icon">💵</div></div></div></div>
+                    </div>
+                </div>
+                
+                <div id="teachers" class="page">
+                    <h3>إدارة المدرسين</h3>
+                    <div class="card p-3 mb-4"><form id="add-teacher-form" class="row align-items-end"><div class="col-md-5"><label class="form-label">اسم المدرس</label><input type="text" id="teacher-name" class="form-control" required></div><div class="col-md-4"><label class="form-label">المادة</label><input type="text" id="teacher-subject" class="form-control" required></div><div class="col-md-2"><label class="form-label">النسبة (%)</label><input type="number" id="teacher-percentage" class="form-control" required min="0" max="100"></div><div class="col-md-1"><button type="submit" class="btn btn-primary w-100">إضافة</button></div></form></div>
+                    <div class="card p-3"><h5 class="card-title">قائمة المدرسين</h5><div class="table-responsive"><table class="table table-striped"><thead><tr><th>الاسم</th><th>المادة</th><th>النسبة</th><th>إجراءات</th></tr></thead><tbody id="teachers-table-body"></tbody></table></div></div>
+                </div>
+
+                <div id="groups" class="page">
+                    <h3>إدارة المجموعات والحصص</h3>
+                    <div class="card p-3 mb-4"><form id="add-group-form" class="row align-items-end"><div class="col-md-4"><label class="form-label">اسم المجموعة</label><input type="text" id="group-name" class="form-control" required></div><div class="col-md-3"><label class="form-label">المدرس</label><select id="group-teacher" class="form-select" required></select></div><div class="col-md-4"><label class="form-label">المواعيد</label><input type="text" id="group-schedule" class="form-control" placeholder="مثال: سبت - اثنين (5م)" required></div><div class="col-md-1"><button type="submit" class="btn btn-primary w-100">إنشاء</button></div></form></div>
+                    <div class="card p-3"><h5 class="card-title">قائمة المجموعات</h5><div class="table-responsive"><table class="table table-striped"><thead><tr><th>اسم المجموعة</th><th>المدرس</th><th>المواعيد</th><th>إجراءات</th></tr></thead><tbody id="groups-table-body"></tbody></table></div></div>
+                </div>
+
+                <div id="students" class="page">
+                    <h3>إدارة الطلاب</h3>
+                    <div class="card p-3 mb-4"><form id="add-student-form" class="row align-items-end"><div class="col-md-3"><label class="form-label">اسم الطالب</label><input type="text" id="name" class="form-control" required></div><div class="col-md-3"><label class="form-label">المرحلة</label><input type="text" id="stage" class="form-control" required></div><div class="col-md-3"><label class="form-label">هاتف ولي الأمر</label><input type="tel" id="parentPhone" class="form-control" required></div><div class="col-md-2"><label class="form-label">المجموعة</label><select id="student-group" class="form-select" required></select></div><div class="col-md-1"><button type="submit" class="btn btn-primary w-100">إضافة</button></div></form></div>
+                    <div class="card p-3"><h5 class="card-title">قائمة الطلاب</h5><input type="text" id="search-student" class="form-control mb-3" placeholder="ابحث بالاسم أو الكود..."><div class="table-responsive"><table class="table table-striped"><thead><tr><th>الاسم</th><th>الكود</th><th>المجموعة</th><th>المرحلة</th><th>إجراءات</th></tr></thead><tbody id="students-table-body"></tbody></table></div></div>
+                </div>
+
+                <div id="attendance" class="page">
+                    <h3>تسجيل الحضور</h3>
+                     <div class="card p-3"><p>قم بتوجيه قارئ الباركود نحو حقل الإدخال أدناه.</p><input type="text" id="barcode-input" class="form-control form-control-lg" placeholder="في انتظار قراءة الباركود..."><div id="attendance-feedback" class="mt-3"></div></div>
+                </div>
+
+                <div id="grades" class="page">
+                    <h3>إدارة الامتحانات والدرجات</h3>
+                    <div class="card p-3 mb-4"><form id="add-exam-form" class="row align-items-end"><div class="col-md-5"><label class="form-label">اختر المجموعة</label><select id="exam-group" class="form-select" required></select></div><div class="col-md-5"><label class="form-label">اسم الامتحان</label><input type="text" id="exam-name" class="form-control" placeholder="مثال: امتحان شهر أكتوبر" required></div><div class="col-md-2"><button type="submit" class="btn btn-primary w-100">بدء رصد الدرجات</button></div></form></div>
+                    <div class="card p-3" id="grades-entry-card" style="display:none;"><h5 id="grades-entry-title"></h5><div class="table-responsive"><table class="table"><thead><tr><th>اسم الطالب</th><th>الدرجة</th></tr></thead><tbody id="grades-entry-body"></tbody></table></div><button class="btn btn-success mt-3" id="save-grades-btn">حفظ جميع الدرجات</button></div>
+                </div>
+
+                <div id="finance" class="page">
+                    <h3>الإدارة المالية</h3>
+                    <div class="card p-3 mb-4"><form id="add-payment-form" class="row align-items-end"><div class="col-md-5"><label class="form-label">كود الطالب</label><input type="text" class="form-control" id="payment-student-id" required></div><div class="col-md-5"><label class="form-label">المبلغ المدفوع</label><input type="number" class="form-control" id="payment-amount" required></div><div class="col-md-2"><button type="submit" class="btn btn-success w-100">تسجيل</button></div></form></div>
+                    <div class="card p-3"><h5 class="card-title">حسابات المدرسين</h5><div class="table-responsive"><table class="table table-striped"><thead><tr><th>المدرس</th><th>إجمالي الإيرادات</th><th>نسبة المدرس</th><th>مستحقات المدرس</th></tr></thead><tbody id="teacher-finances-table-body"></tbody></table></div></div>
+                </div>
+
+            </main>
         </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-        <button type="button" class="btn btn-primary" onclick="window.print()">طباعة</button>
-      </div>
     </div>
-  </div>
 </div>
 
+<div class="modal fade" id="receiptModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">إيصال استلام</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="receipt-modal-content"></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button><button type="button" class="btn btn-primary" onclick="printReceipt()">طباعة</button></div></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-// =================================================================
-// DATABASE SIMULATION (using browser's localStorage)
-// =================================================================
+// ===== CONFIGURATION =====
+const CORRECT_USERNAME = 'admin';
+const CORRECT_PASSWORD = '123';
+
+// ===== AUTH LOGIC =====
+function handleLogin(e) { e.preventDefault(); if (document.getElementById('username').value === CORRECT_USERNAME && document.getElementById('password').value === CORRECT_PASSWORD) { sessionStorage.setItem('isLoggedIn', 'true'); checkLogin(); } else { document.getElementById('login-error').style.display = 'block'; } }
+function logout() { sessionStorage.removeItem('isLoggedIn'); location.reload(); }
+function checkLogin() { if (sessionStorage.getItem('isLoggedIn') === 'true') { document.getElementById('login-screen').style.display = 'none'; document.getElementById('app-wrapper').style.display = 'block'; initialize_app(); } else { document.getElementById('login-screen').style.display = 'flex'; document.getElementById('app-wrapper').style.display = 'none'; } }
+
+// ===== DATABASE SIMULATION (localStorage) =====
 const DB = {
-    // Load data from localStorage or initialize if not present
-    getStudents: () => JSON.parse(localStorage.getItem('students') || '[]'),
-    saveStudents: (students) => localStorage.setItem('students', JSON.stringify(students)),
-    getPayments: () => JSON.parse(localStorage.getItem('payments') || '[]'),
-    savePayments: (payments) => localStorage.setItem('payments', JSON.stringify(payments)),
+    get: (key) => JSON.parse(localStorage.getItem(key) || '[]'),
+    save: (key, data) => localStorage.setItem(key, JSON.stringify(data)),
 };
 
-// =================================================================
-// UI (User Interface) LOGIC
-// =================================================================
+// ===== UI LOGIC =====
 function showPage(pageId) {
-    // Hide all pages
-    document.querySelectorAll('.main-content .page').forEach(page => {
-        page.style.display = 'none';
-    });
-    // Show the requested page
+    document.querySelectorAll('.main-content .page').forEach(p => p.style.display = 'none');
     document.getElementById(pageId).style.display = 'block';
-
-    // Update active link in sidebar
-     document.querySelectorAll('.sidebar .nav-link').forEach(link => {
-        link.classList.remove('active');
-    });
+    document.querySelectorAll('.sidebar .nav-link').forEach(l => l.classList.remove('active'));
     document.querySelector(`.sidebar .nav-link[onclick="showPage('${pageId}')"]`).classList.add('active');
     
     // Refresh data when showing a page
-    if (pageId === 'students') renderStudentsTable();
     if (pageId === 'dashboard') renderDashboard();
+    if (pageId === 'teachers') renderTeachersTable();
+    if (pageId === 'groups') { populateTeachersDropdown(); renderGroupsTable(); }
+    if (pageId === 'students') { populateGroupsDropdown('student-group'); renderStudentsTable(); }
+    if (pageId === 'grades') { populateGroupsDropdown('exam-group'); document.getElementById('grades-entry-card').style.display = 'none'; }
+    if (pageId === 'finance') renderTeacherFinances();
 }
 
 function renderDashboard() {
-    const students = DB.getStudents();
-    const payments = DB.getPayments();
-    
-    document.getElementById('total-students-stat').innerText = students.length;
-    
-    const totalRevenue = payments.reduce((sum, payment) => sum + payment.amount, 0);
-    document.getElementById('total-revenue-stat').innerText = `${totalRevenue} جنيه`;
+    document.getElementById('total-students-stat').innerText = DB.get('students').length;
+    document.getElementById('total-teachers-stat').innerText = DB.get('teachers').length;
+    document.getElementById('total-groups-stat').innerText = DB.get('groups').length;
+    const totalRevenue = DB.get('payments').reduce((sum, p) => sum + p.amount, 0);
+    document.getElementById('total-revenue-stat').innerText = `${totalRevenue} ج`;
 }
 
-function renderStudentsTable(filter = '') {
-    const students = DB.getStudents();
-    const tableBody = document.getElementById('students-table-body');
-    tableBody.innerHTML = ''; // Clear existing table
-    
-    const filteredStudents = students.filter(student => 
-        student.name.toLowerCase().includes(filter.toLowerCase()) || 
-        student.id.toLowerCase().includes(filter.toLowerCase())
-    );
+function renderTeachersTable() {
+    const tableBody = document.getElementById('teachers-table-body');
+    tableBody.innerHTML = '';
+    DB.get('teachers').forEach(t => { tableBody.innerHTML += `<tr><td>${t.name}</td><td>${t.subject}</td><td>${t.percentage}%</td><td><button class="btn btn-danger btn-sm" onclick="deleteData('teachers', '${t.id}')">حذف</button></td></tr>`; });
+}
 
-    if (filteredStudents.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="5" class="text-center">لا يوجد طلاب مسجلون.</td></tr>';
-        return;
-    }
+function populateTeachersDropdown() {
+    const select = document.getElementById('group-teacher');
+    select.innerHTML = '<option value="">اختر مدرس...</option>';
+    DB.get('teachers').forEach(t => { select.innerHTML += `<option value="${t.id}">${t.name}</option>`; });
+}
 
-    filteredStudents.forEach(student => {
-        const row = `
-            <tr>
-                <td>${student.name}</td>
-                <td>${student.id}</td>
-                <td>${student.stage}</td>
-                <td>${student.parentPhone}</td>
-                <td>
-                    <button class="btn btn-danger btn-sm" onclick="deleteStudent('${student.id}')">حذف</button>
-                </td>
-            </tr>
-        `;
-        tableBody.innerHTML += row;
+function renderGroupsTable() {
+    const teachers = DB.get('teachers');
+    const tableBody = document.getElementById('groups-table-body');
+    tableBody.innerHTML = '';
+    DB.get('groups').forEach(g => {
+        const teacher = teachers.find(t => t.id === g.teacherId);
+        tableBody.innerHTML += `<tr><td>${g.name}</td><td>${teacher ? teacher.name : 'غير محدد'}</td><td>${g.schedule}</td><td><button class="btn btn-danger btn-sm" onclick="deleteData('groups', '${g.id}')">حذف</button></td></tr>`;
     });
 }
 
-function clearData() {
-    if (confirm('تحذير! هل أنت متأكد من رغبتك في مسح جميع بيانات الطلاب والبيانات المالية؟ لا يمكن التراجع عن هذا الإجراء.')) {
-        localStorage.removeItem('students');
-        localStorage.removeItem('payments');
-        alert('تم مسح جميع البيانات بنجاح.');
-        renderDashboard();
-        renderStudentsTable();
-    }
+function populateGroupsDropdown(selectId) {
+    const select = document.getElementById(selectId);
+    select.innerHTML = '<option value="">اختر مجموعة...</option>';
+    DB.get('groups').forEach(g => { select.innerHTML += `<option value="${g.id}">${g.name}</option>`; });
 }
 
-// =================================================================
-// BUSINESS LOGIC
-// =================================================================
-function addStudent(event) {
-    event.preventDefault();
-    const name = document.getElementById('name').value;
-    const stage = document.getElementById('stage').value;
-    const parentPhone = document.getElementById('parentPhone').value;
+function renderStudentsTable(filter = '') {
+    const groups = DB.get('groups');
+    const tableBody = document.getElementById('students-table-body');
+    tableBody.innerHTML = '';
+    const filteredStudents = DB.get('students').filter(s => s.name.toLowerCase().includes(filter.toLowerCase()) || s.id.toLowerCase().includes(filter.toLowerCase()));
+    filteredStudents.forEach(s => {
+        const group = groups.find(g => g.id === s.groupId);
+        tableBody.innerHTML += `<tr><td>${s.name}</td><td>${s.id}</td><td>${group ? group.name : 'بلا مجموعة'}</td><td>${s.stage}</td><td><button class="btn btn-danger btn-sm" onclick="deleteData('students', '${s.id}')">حذف</button></td></tr>`;
+    });
+}
 
-    // Create a unique ID for student (serves as barcode)
-    const studentId = `STU-${Date.now()}`;
+function renderTeacherFinances() {
+    const tableBody = document.getElementById('teacher-finances-table-body');
+    tableBody.innerHTML = '';
+    DB.get('teachers').forEach(teacher => {
+        const teacherGroups = DB.get('groups').filter(g => g.teacherId === teacher.id);
+        const teacherStudentIds = DB.get('students').filter(s => teacherGroups.some(g => g.id === s.groupId)).map(s => s.id);
+        const totalRevenue = DB.get('payments').filter(p => teacherStudentIds.includes(p.studentId)).reduce((sum, p) => sum + p.amount, 0);
+        const teacherShare = totalRevenue * (teacher.percentage / 100);
+        tableBody.innerHTML += `<tr><td>${teacher.name}</td><td>${totalRevenue.toFixed(2)} ج</td><td>${teacher.percentage}%</td><td>${teacherShare.toFixed(2)} ج</td></tr>`;
+    });
+}
 
-    const newStudent = {
-        id: studentId,
-        name,
-        stage,
-        parentPhone
-    };
-
-    const students = DB.getStudents();
-    students.push(newStudent);
-    DB.saveStudents(students);
-
-    alert(`تمت إضافة الطالب بنجاح! كود الطالب (للباركود) هو: ${studentId}`);
-    document.getElementById('add-student-form').reset();
-    renderStudentsTable();
+// ===== DATA HANDLING LOGIC =====
+function addData(key, dataObject) {
+    const data = DB.get(key);
+    data.push(dataObject);
+    DB.save(key, data);
     renderDashboard();
 }
 
-function deleteStudent(studentId) {
-    if (confirm(`هل أنت متأكد من حذف الطالب صاحب الكود ${studentId}؟`)) {
-        let students = DB.getStudents();
-        students = students.filter(student => student.id !== studentId);
-        DB.saveStudents(students);
-        renderStudentsTable();
-        renderDashboard();
-    }
+function addTeacher(e) {
+    e.preventDefault();
+    addData('teachers', { id: `TCH-${Date.now()}`, name: document.getElementById('teacher-name').value, subject: document.getElementById('teacher-subject').value, percentage: parseInt(document.getElementById('teacher-percentage').value) });
+    e.target.reset();
+    renderTeachersTable();
 }
 
-function handleAttendance(event) {
-    const barcode = event.target.value.trim();
+function addGroup(e) {
+    e.preventDefault();
+    addData('groups', { id: `GRP-${Date.now()}`, name: document.getElementById('group-name').value, teacherId: document.getElementById('group-teacher').value, schedule: document.getElementById('group-schedule').value });
+    e.target.reset();
+    renderGroupsTable();
+}
+
+function addStudent(e) {
+    e.preventDefault();
+    const studentId = `STU-${Date.now()}`;
+    addData('students', { id: studentId, name: document.getElementById('name').value, stage: document.getElementById('stage').value, parentPhone: document.getElementById('parentPhone').value, groupId: document.getElementById('student-group').value });
+    alert(`تمت إضافة الطالب بنجاح! كود الطالب (للباركود) هو: ${studentId}`);
+    e.target.reset();
+    renderStudentsTable();
+}
+
+function addPayment(e) {
+    e.preventDefault();
+    const studentId = document.getElementById('payment-student-id').value;
+    const student = DB.get('students').find(s => s.id === studentId);
+    if (!student) { alert('خطأ: كود الطالب غير موجود.'); return; }
+    
+    const newPayment = { studentId: student.id, amount: parseFloat(document.getElementById('payment-amount').value), date: new Date().toISOString() };
+    addData('payments', newPayment);
+    
+    document.getElementById('receipt-modal-content').innerHTML = `<h5>${DB.get('settings')[0]?.centerName || 'المركز التعليمي'}</h5><p>-------------------------</p><p><strong>الطالب:</strong> ${student.name}</p><p><strong>المبلغ:</strong> ${newPayment.amount.toFixed(2)} ج</p><p>-------------------------</p><p>شكرًا لكم!</p>`;
+    new bootstrap.Modal(document.getElementById('receiptModal')).show();
+    
+    e.target.reset();
+    renderDashboard();
+    renderTeacherFinances();
+}
+
+function handleAttendance(e) {
+    const barcode = e.target.value.trim();
     if (barcode === '') return;
-
-    const students = DB.getStudents();
-    const student = students.find(s => s.id === barcode);
+    const student = DB.get('students').find(s => s.id === barcode);
     const feedbackEl = document.getElementById('attendance-feedback');
-
     if (student) {
-        feedbackEl.innerHTML = `
-            <div class="alert alert-success">
-                <strong>حضور:</strong> ${student.name} (${student.stage})
-                <br>
-                <strong>الوقت:</strong> ${new Date().toLocaleTimeString()}
-            </div>`;
+        feedbackEl.innerHTML = `<div class="alert alert-success"><strong>حضور:</strong> ${student.name}<br><strong>الوقت:</strong> ${new Date().toLocaleTimeString()}</div>`;
     } else {
         feedbackEl.innerHTML = `<div class="alert alert-danger"><strong>خطأ:</strong> الطالب غير مسجل.</div>`;
     }
-    
-    // Clear input for next scan
-    setTimeout(() => {
-        event.target.value = '';
-        feedbackEl.innerHTML = '';
-    }, 3000);
+    setTimeout(() => { e.target.value = ''; feedbackEl.innerHTML = ''; }, 3000);
 }
 
-function addPayment(event) {
-    event.preventDefault();
-    const studentId = document.getElementById('payment-student-id').value;
-    const amount = parseFloat(document.getElementById('payment-amount').value);
+function startGradesEntry(e) {
+    e.preventDefault();
+    const groupId = document.getElementById('exam-group').value;
+    const examName = document.getElementById('exam-name').value;
+    if (!groupId) { alert('يرجى اختيار مجموعة أولاً.'); return; }
+
+    const studentsInGroup = DB.get('students').filter(s => s.groupId === groupId);
+    const tableBody = document.getElementById('grades-entry-body');
+    tableBody.innerHTML = '';
     
-    const students = DB.getStudents();
-    const student = students.find(s => s.id === studentId);
+    studentsInGroup.forEach(student => {
+        tableBody.innerHTML += `<tr><td>${student.name}</td><td><input type="number" class="form-control grade-input" data-student-id="${student.id}" placeholder="ادخل الدرجة"></td></tr>`;
+    });
+    
+    document.getElementById('grades-entry-title').innerText = `رصد درجات امتحان "${examName}"`;
+    document.getElementById('grades-entry-card').style.display = 'block';
+}
 
-    if (!student) {
-        alert('خطأ: كود الطالب غير موجود.');
-        return;
-    }
-
-    const newPayment = {
-        studentId: student.id,
-        studentName: student.name,
-        amount,
-        date: new Date().toISOString()
+function saveGrades() {
+    const examName = document.getElementById('exam-name').value;
+    const groupId = document.getElementById('exam-group').value;
+    const gradeInputs = document.querySelectorAll('.grade-input');
+    
+    const newExam = {
+        id: `EXM-${Date.now()}`,
+        name: examName,
+        groupId: groupId,
+        grades: []
     };
-    
-    const payments = DB.getPayments();
-    payments.push(newPayment);
-    DB.savePayments(payments);
-    
-    // Show and prepare receipt
-    const receiptContent = `
-        <h5>مركز الأوائل التعليمي</h5>
-        <p>-------------------------</p>
-        <p><strong>التاريخ:</strong> ${new Date(newPayment.date).toLocaleString('ar-EG')}</p>
-        <p><strong>اسم الطالب:</strong> ${newPayment.studentName}</p>
-        <p><strong>كود الطالب:</strong> ${newPayment.studentId}</p>
-        <p>-------------------------</p>
-        <h4>المبلغ: ${newPayment.amount.toFixed(2)} جنيه</h4>
-        <p>-------------------------</p>
-        <p>شكرًا لكم!</p>
-    `;
-    document.getElementById('receipt-modal-content').innerHTML = receiptContent;
-    const receiptModal = new bootstrap.Modal(document.getElementById('receiptModal'));
-    receiptModal.show();
-    
-    document.getElementById('add-payment-form').reset();
-    renderDashboard();
+
+    gradeInputs.forEach(input => {
+        if (input.value) {
+            newExam.grades.push({
+                studentId: input.dataset.studentId,
+                grade: parseFloat(input.value)
+            });
+        }
+    });
+
+    addData('exams', newExam);
+    alert('تم حفظ الدرجات بنجاح!');
+    document.getElementById('grades-entry-card').style.display = 'none';
+    document.getElementById('add-exam-form').reset();
 }
 
-// =================================================================
-// EVENT LISTENERS (Initial Setup)
-// =================================================================
-document.addEventListener('DOMContentLoaded', () => {
-    // Show default page
-    showPage('dashboard');
+function deleteData(key, id) {
+    if (confirm(`هل أنت متأكد من الحذف؟ سيتم حذف كل البيانات المرتبطة.`)) {
+        let data = DB.get(key);
+        data = data.filter(item => item.id !== id);
+        DB.save(key, data);
+        showPage(document.querySelector('.main-content .page.active').id); // Refresh view
+    }
+}
 
-    // Attach event listeners
+function clearData() {
+    if (confirm('تحذير! هل أنت متأكد من مسح جميع بيانات المركز؟ لا يمكن التراجع عن هذا الإجراء.')) {
+        localStorage.clear();
+        sessionStorage.clear();
+        location.reload();
+    }
+}
+
+function printReceipt() {
+    const receiptContent = document.getElementById('receipt-modal-content').innerHTML;
+    const originalContent = document.body.innerHTML;
+    document.body.innerHTML = receiptContent;
+    window.print();
+    document.body.innerHTML = originalContent;
+    location.reload(); // Reload to restore event listeners
+}
+
+// ===== APP INITIALIZATION =====
+function initialize_app() {
+    showPage('dashboard');
+    document.getElementById('add-teacher-form').addEventListener('submit', addTeacher);
+    document.getElementById('add-group-form').addEventListener('submit', addGroup);
     document.getElementById('add-student-form').addEventListener('submit', addStudent);
     document.getElementById('search-student').addEventListener('keyup', (e) => renderStudentsTable(e.target.value));
     document.getElementById('barcode-input').addEventListener('change', handleAttendance);
     document.getElementById('add-payment-form').addEventListener('submit', addPayment);
+    document.getElementById('add-exam-form').addEventListener('submit', startGradesEntry);
+    document.getElementById('save-grades-btn').addEventListener('click', saveGrades);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('login-form').addEventListener('submit', handleLogin);
+    checkLogin();
 });
 </script>
 
