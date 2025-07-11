@@ -50,12 +50,14 @@
 </head>
 <body>
 
+<!-- Loader Screen -->
 <div id="loader-screen" style="display: none;">
     <div class="spinner-border text-light" role="status">
         <span class="visually-hidden">جار التحميل...</span>
     </div>
 </div>
 
+<!-- Login Screen -->
 <div id="login-screen">
     <div id="login-box" class="text-center">
         <h3 class="mb-4">تسجيل الدخول</h3>
@@ -71,6 +73,7 @@
 </div>
 
 <div id="app-wrapper">
+    <!-- Top Navbar -->
     <nav class="navbar navbar-dark bg-dark sticky-top flex-md-nowrap p-0 shadow">
         <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">إدارة المركز</a>
         <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobile-sidebar" aria-controls="mobile-sidebar">
@@ -78,6 +81,7 @@
         </button>
     </nav>
 
+    <!-- Mobile Sidebar (Offcanvas) -->
     <div class="offcanvas offcanvas-start bg-dark text-white" tabindex="-1" id="mobile-sidebar" aria-labelledby="mobile-sidebar-label">
         <div class="offcanvas-header">
             <h5 class="offcanvas-title" id="mobile-sidebar-label">القائمة</h5>
@@ -90,11 +94,13 @@
 
     <div class="container-fluid">
         <div class="row">
+            <!-- Desktop Sidebar -->
             <nav id="sidebar" class="col-md-3 col-lg-2 d-none d-md-block sidebar p-3">
                 <ul class="nav flex-column" id="desktop-nav-links"></ul>
             </nav>
 
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4 main-content">
+                <!-- Pages are identical to the previous version -->
                 <div id="dashboard" class="page active">
                     <h3>لوحة التحكم</h3>
                     <div class="row mt-4">
@@ -119,7 +125,16 @@
 
                 <div id="students" class="page">
                     <h3>إدارة الطلاب</h3>
-                    <div class="card p-3 mb-4"><form id="add-student-form" class="row g-3 align-items-end"><div class="col-md-3"><label class="form-label">اسم الطالب</label><input type="text" id="name" class="form-control" required></div><div class="col-md-3"><label class="form-label">المرحلة</label><input type="text" id="stage" class="form-control" required></div><div class="col-md-3"><label class="form-label">هاتف ولي الأمر</label><input type="tel" id="parentPhone" class="form-control" required></div><div class="col-md-2"><label class="form-label">المجموعة</label><select id="student-group" class="form-select" required></select></div><div class="col-md-1"><button type="submit" class="btn btn-primary w-100">إضافة</button></div></form></div>
+                    <div class="card p-3 mb-4">
+                        <form id="add-student-form" class="row g-3 align-items-end">
+                            <div class="col-md-3"><label class="form-label">اسم الطالب</label><input type="text" id="name" class="form-control" required></div>
+                            <div class="col-md-2"><label class="form-label">كود الطالب (5 أرقام)</label><input type="text" id="student-code" class="form-control" placeholder="اتركه فارغاً للتلقائي"></div>
+                            <div class="col-md-2"><label class="form-label">المرحلة</label><input type="text" id="stage" class="form-control" required></div>
+                            <div class="col-md-2"><label class="form-label">هاتف ولي الأمر</label><input type="tel" id="parentPhone" class="form-control" required></div>
+                            <div class="col-md-2"><label class="form-label">المجموعة</label><select id="student-group" class="form-select" required></select></div>
+                            <div class="col-md-1"><button type="submit" class="btn btn-primary w-100">إضافة</button></div>
+                        </form>
+                    </div>
                     <div class="card p-3"><h5 class="card-title">قائمة الطلاب</h5><input type="text" id="search-student" class="form-control mb-3" placeholder="ابحث بالاسم أو الكود..."><div class="table-responsive"><table class="table table-striped"><thead><tr><th>الاسم</th><th>الكود</th><th>المجموعة</th><th>المرحلة</th><th>إجراءات</th></tr></thead><tbody id="students-table-body"></tbody></table></div></div>
                 </div>
 
@@ -230,7 +245,6 @@ const SHEETDB_URL = "https://sheetdb.io/api/v1/ahg3k8j1ewx6j";
 const APP_PASSWORD = '123456789'; // يمكنك تغييرها
 // ===================================================================================
 
-// ** FIX: Add a check for the placeholder URL **
 if (SHEETDB_URL.includes("الصق هنا")) {
     alert("خطأ في الإعداد: يرجى لصق رابط API الخاص بك من موقع SheetDB في متغير SHEETDB_URL داخل الكود.");
     throw new Error("SheetDB URL is not configured.");
@@ -256,7 +270,6 @@ async function sheetDbFetch(params = '', options = {}) {
             console.error(`SheetDB Error (${response.status}):`, errorData);
             throw new Error('فشل الاتصال بـ SheetDB.');
         }
-        // For DELETE requests, response might be empty
         if (options.method === 'DELETE') {
             return { "deleted": 1 };
         }
@@ -264,7 +277,7 @@ async function sheetDbFetch(params = '', options = {}) {
     } catch (error) {
         console.error('Fetch Error:', error);
         alert('حدث خطأ في الشبكة. يرجى التحقق من اتصالك بالإنترنت ورابط SheetDB.');
-        return []; // Return an empty array on failure to prevent crashes
+        return []; 
     }
 }
 
@@ -551,9 +564,41 @@ function addGroup(e) {
     addData('Groups', data).then(() => e.target.reset());
 }
 
+function generateUniqueStudentCode() {
+    let newCode;
+    let isUnique = false;
+    // Keep generating a new code until a unique one is found
+    do {
+        newCode = Math.floor(10000 + Math.random() * 90000).toString();
+        // Check if the generated code already exists
+        if (!allStudents.some(student => student.barcode === newCode)) {
+            isUnique = true;
+        }
+    } while (!isUnique);
+    return newCode;
+}
+
 function addStudent(e) {
     e.preventDefault();
-    const studentBarcode = `STU-${Date.now()}`;
+    const customCode = document.getElementById('student-code').value.trim();
+    let studentBarcode;
+
+    if (customCode) {
+        // Validate custom code
+        if (!/^\d{5}$/.test(customCode)) {
+            alert("خطأ: كود الطالب يجب أن يتكون من 5 أرقام فقط.");
+            return;
+        }
+        if (allStudents.some(student => student.barcode === customCode)) {
+            alert("خطأ: هذا الكود مستخدم بالفعل. يرجى إدخال كود آخر أو تركه فارغاً.");
+            return;
+        }
+        studentBarcode = customCode;
+    } else {
+        // Generate a unique code if the field is empty
+        studentBarcode = generateUniqueStudentCode();
+    }
+
     const data = {
         id: `STU-ID-${Date.now()}`,
         name: document.getElementById('name').value,
@@ -563,7 +608,7 @@ function addStudent(e) {
         barcode: studentBarcode
     };
     addData('Students', data).then(() => {
-        alert(`تمت إضافة الطالب بنجاح! كود الطالب (للباركود) هو: ${studentBarcode}`);
+        alert(`تمت إضافة الطالب بنجاح! كود الطالب هو: ${studentBarcode}`);
         e.target.reset();
     });
 }
