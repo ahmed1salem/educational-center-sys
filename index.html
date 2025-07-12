@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة المركز التعليمي (Google Apps Script)</title>
+    <title>نظام إدارة المركز التعليمي (النسخة الآمنة)</title>
     
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="[https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css](https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css)">
+    <link rel="stylesheet" href="[https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css](https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css)">
     
     <style>
         body { 
@@ -16,18 +16,19 @@
             flex-direction: column;
             min-height: 100vh;
         }
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+        @import url('[https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap)');
         
         #login-screen, #loader-screen { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background-color: #343a40; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; 
         }
         #login-box { 
-            background: white; padding: 2rem; border-radius: 0.5rem; width: 100%; max-width: 400px; box-shadow: 0 0 15px rgba(0,0,0,0.2); 
+            background: white; padding: 2rem; border-radius: 0.5rem; width: 100%; max-width: 450px; box-shadow: 0 0 15px rgba(0,0,0,0.2); 
         }
         #app-wrapper { 
             display: none; 
             flex: 1;
+            flex-direction: column;
         }
         .main-content .page { display: none; }
         .main-content .page.active { display: block; }
@@ -57,6 +58,7 @@
             padding: 1rem 0;
             background-color: #343a40;
             color: #f8f9fa;
+            flex-shrink: 0;
         }
         .footer a {
             color: #ffffff;
@@ -66,6 +68,8 @@
         .footer a:hover {
             text-decoration: underline;
         }
+        .delete-btn { display: none; } /* Hide delete buttons by default */
+        body.admin .delete-btn { display: inline-block; } /* Show for admins */
     </style>
 </head>
 <body>
@@ -80,18 +84,10 @@
 <!-- Login Screen -->
 <div id="login-screen">
     <div id="login-box" class="text-center">
-        <h3 class="mb-4">تسجيل الدخول</h3>
-        <form id="login-form">
-            <div class="form-floating mb-3">
-                <input type="password" class="form-control" id="password" placeholder="Password" required>
-                <label for="password">كلمة المرور</label>
-            </div>
-            <button type="submit" class="btn btn-primary w-100">دخول</button>
-            <div id="login-error" class="text-danger mt-2" style="display: none;">كلمة المرور غير صحيحة.</div>
-        </form>
-        <hr>
-        <button id="test-connection-btn" class="btn btn-outline-secondary w-100">اختبار الاتصال بقاعدة البيانات</button>
-        <div id="test-connection-result" class="mt-2"></div>
+        <h3 class="mb-4">نظام إدارة المركز التعليمي</h3>
+        <p class="text-muted">يستخدم هذا النظام مصادقة جوجل الآمنة. يرجى تسجيل الدخول بحساب جوجل المصرح له للوصول إلى النظام.</p>
+        <button id="login-btn" class="btn btn-primary btn-lg w-100"><i class="bi bi-google me-2"></i> تسجيل الدخول عبر جوجل</button>
+        <div id="login-error" class="text-danger mt-2" style="display: none;"></div>
     </div>
 </div>
 
@@ -99,6 +95,7 @@
     <!-- Top Navbar -->
     <nav class="navbar navbar-dark bg-dark sticky-top flex-md-nowrap p-0 shadow">
         <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#">إدارة المركز</a>
+        <div class="ms-auto me-3 text-white" id="user-info"></div>
         <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobile-sidebar" aria-controls="mobile-sidebar">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -123,8 +120,8 @@
             </nav>
 
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4 main-content">
-                <!-- Pages are identical to the previous version -->
-                <div id="dashboard" class="page active">
+                <!-- Pages remain the same -->
+                 <div id="dashboard" class="page active">
                     <h3>لوحة التحكم</h3>
                     <div class="row mt-4">
                         <div class="col-lg-3 col-md-6 mb-4"><div class="card stat-card bg-primary p-3"><div class="d-flex justify-content-between align-items-center"><div><h5>الطلاب</h5><h2 id="total-students-stat">0</h2></div><div class="card-icon">🧑‍🎓</div></div></div></div>
@@ -215,8 +212,34 @@
 
                 <div id="finance" class="page">
                     <h3>الإدارة المالية</h3>
-                    <div class="card p-3 mb-4"><form id="add-payment-form" class="row g-3 align-items-end"><div class="col-md-5"><label class="form-label">كود الطالب</label><input type="text" class="form-control" id="payment-student-id" required></div><div class="col-md-5"><label class="form-label">المبلغ المدفوع</label><input type="number" class="form-control" id="payment-amount" required></div><div class="col-md-2"><button type="submit" class="btn btn-success w-100">تسجيل</button></div></form></div>
-                    <div class="card p-3"><h5 class="card-title">حسابات المدرسين</h5><div class="table-responsive"><table class="table table-striped"><thead><tr><th>المدرس</th><th>إجمالي الإيرادات</th><th>نسبة المدرس</th><th>مستحقات المدرس</th></tr></thead><tbody id="teacher-finances-table-body"></tbody></table></div></div>
+                    <div class="card p-3 mb-4">
+                        <h5 class="card-title">تسجيل دفعة جديدة</h5>
+                        <form id="add-payment-form" class="row g-3 align-items-end">
+                            <div class="col-md-5"><label class="form-label">كود الطالب</label><input type="text" class="form-control" id="payment-student-id" required></div>
+                            <div class="col-md-5"><label class="form-label">المبلغ المدفوع</label><input type="number" class="form-control" id="payment-amount" required></div>
+                            <div class="col-md-2"><button type="submit" class="btn btn-success w-100">تسجيل</button></div>
+                        </form>
+                    </div>
+                    <div class="card p-3" id="finance-details-card" style="display: none;">
+                        <h5 class="card-title">حسابات المدرسين</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead><tr><th>المدرس</th><th>إجمالي الإيرادات</th><th>نسبة المدرس</th><th>مستحقات المدرس</th></tr></thead>
+                                <tbody id="teacher-finances-table-body"></tbody>
+                            </table>
+                        </div>
+                        <hr>
+                        <h5 class="card-title mt-3">طباعة التقارير</h5>
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-5">
+                                <label for="report-teacher-select" class="form-label">اختر المدرس</label>
+                                <select id="report-teacher-select" class="form-select"></select>
+                            </div>
+                            <div class="col-md-3">
+                                <button id="print-report-btn" class="btn btn-secondary w-100">طباعة التقرير</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                  <div id="student-details" class="page">
@@ -250,14 +273,16 @@
             </main>
         </div>
     </div>
+    
+    <footer class="footer">
+        <div class="container text-center">
+            <span>Made with ❤ by <a href="[https://wa.me/message/ZOYOVTK4TGTGO1](https://wa.me/message/ZOYOVTK4TGTGO1)" target="_blank">Ahmed Salem</a>, CEO of <a href="[https://algohive.net](https://algohive.net)" target="_blank">AlgoHive Solution</a></span>
+        </div>
+    </footer>
 </div>
 
-<footer class="footer">
-    <div class="container text-center">
-        <span>Made with ❤ by <a href="https://wa.me/message/ZOYOVTK4TGTGO1" target="_blank">Ahmed Salem</a>, CEO of <a href="https://algohive.net" target="_blank">AlgoHive Solution</a></span>
-    </div>
-</footer>
 
+<!-- Receipt Modal -->
 <div class="modal fade" id="receiptModal" tabindex="-1" aria-labelledby="receiptModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -274,7 +299,8 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="[https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js](https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js)"></script>
 
 <script>
 // ===================================================================================
@@ -282,13 +308,11 @@
 // ===================================================================================
 // 1. اتبع دليل الإعداد الذي تم تزويدك به لنشر الكود كـ "Web App".
 // 2. الصق رابط تطبيق الويب (Web app URL) الذي حصلت عليه هنا.
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwND5NIt5EB5LKkC8Hdz-P0b5c0rEiDY4DuUCRhGvVrc8Y6-UUg52pAMDZMuX36HLl0dQ/exec";
-
-// كلمة المرور للدخول إلى النظام
-const APP_PASSWORD = '123'; // يمكنك تغييرها
+const GOOGLE_SCRIPT_URL = "[https://script.google.com/macros/s/AKfycby0kVetwnO2nTx4NGM7h2oectWBAMMv74Oe1LxRUMu6qXEg7qjARcpHB4h8lLfklV4S-g/exec](https://script.google.com/macros/s/AKfycby0kVetwnO2nTx4NGM7h2oectWBAMMv74Oe1LxRUMu6qXEg7qjARcpHB4h8lLfklV4S-g/exec)";
 // ===================================================================================
 
-// Global state
+// Global state & User Info
+let currentUser = { email: null, role: null };
 let currentStudentDetailsId = null;
 let allStudents = [];
 let allGroups = [];
@@ -297,82 +321,64 @@ let allExams = [];
 let allAttendance = [];
 let allPayments = [];
 
-// ===== API HELPER =====
-async function getData(sheetName) {
-    const url = `${GOOGLE_SCRIPT_URL}?sheet=${sheetName}&${new Date().getTime()}`; // Prevent caching
-    try {
-        const response = await fetch(url, { redirect: 'follow' });
-        if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
-        const result = await response.json();
-        if (result.error) throw new Error(result.error);
-        return result;
-    } catch (error) {
-        console.error('Fetch Error (GET):', error);
-        throw error; // Re-throw to be caught by the caller
-    }
+// ===== SANITIZER =====
+function sanitizeHTML(str) {
+    if (str === null || typeof str === 'undefined') return '';
+    const temp = document.createElement('div');
+    temp.textContent = str.toString();
+    return temp.innerHTML;
 }
 
-async function postData(payload) {
+// ===== API HELPER =====
+async function googleApiRequest(payload) {
     try {
         const response = await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            mode: 'cors', // Added for better cross-origin handling
+            mode: 'cors',
             body: JSON.stringify(payload),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Changed to text/plain for Apps Script
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         });
         if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
         const result = await response.json();
         if (result.error) throw new Error(result.error);
         return result;
     } catch (error) {
-        console.error('Fetch Error (POST):', error);
-        throw error; // Re-throw to be caught by the caller
+        console.error('API Request Error:', error);
+        alert(`حدث خطأ في الاتصال: ${error.message}`);
+        throw error;
     }
 }
 
-// ===== AUTH LOGIC & CONNECTION TEST =====
-function handleLogin(e) {
-    e.preventDefault();
-    const password = document.getElementById('password').value;
-    if (password === APP_PASSWORD) {
-        sessionStorage.setItem('isLoggedIn', 'true');
-        checkLogin();
-    } else {
-        document.getElementById('login-error').style.display = 'block';
-    }
-}
-
-async function testConnection() {
-    const resultDiv = document.getElementById('test-connection-result');
-    resultDiv.className = 'mt-2';
-    resultDiv.innerHTML = `<div class="spinner-border spinner-border-sm" role="status"></div> جاري الاختبار...`;
-
-    if (GOOGLE_SCRIPT_URL.includes("الصق هنا")) {
-        resultDiv.className = 'mt-2 alert alert-danger';
-        resultDiv.innerHTML = '<strong>خطأ:</strong> لم تقم بلصق رابط تطبيق الويب في الكود.';
-        return;
-    }
+// ===== AUTH LOGIC =====
+function handleLogin() {
+    const loginError = document.getElementById('login-error');
+    loginError.style.display = 'none';
+    document.getElementById('loader-screen').style.display = 'flex';
     
-    try {
-        await getData('Teachers'); // Test by fetching a known sheet
-        resultDiv.className = 'mt-2 alert alert-success';
-        resultDiv.innerHTML = '<strong>نجاح!</strong> الاتصال بقاعدة البيانات يعمل بشكل صحيح.';
-    } catch (error) {
-        resultDiv.className = 'mt-2 alert alert-danger';
-        resultDiv.innerHTML = `<strong>فشل الاتصال.</strong> تأكد من أنك قمت بنشر الكود في Apps Script بشكل صحيح وأن صلاحية الوصول مضبوطة على "Anyone".`;
-        console.error("Test Connection failed:", error);
-    }
+    googleApiRequest({ action: 'getUserInfo' })
+        .then(user => {
+            currentUser = user;
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('userRole', user.role);
+            checkLogin();
+        })
+        .catch(error => {
+            document.getElementById('loader-screen').style.display = 'none';
+            loginError.textContent = `فشل تسجيل الدخول: ${error.message}. تأكد من أن حسابك مضاف في شيت المستخدمين.`;
+            loginError.style.display = 'block';
+        });
 }
 
 function logout() {
-    sessionStorage.removeItem('isLoggedIn');
+    sessionStorage.clear();
     location.reload();
 }
 
 function checkLogin() {
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
+        currentUser.role = sessionStorage.getItem('userRole');
         document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-wrapper').style.display = 'block';
+        document.getElementById('app-wrapper').style.display = 'flex';
         initializeApp();
     } else {
         document.getElementById('login-screen').style.display = 'flex';
@@ -396,7 +402,6 @@ function showPage(pageId, studentId = null) {
         }
     });
 
-    // Manually hide the offcanvas after a link is clicked on mobile
     const offcanvasElement = document.getElementById('mobile-sidebar');
     if (offcanvasElement && offcanvasElement.classList.contains('show')) {
         const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasElement);
@@ -413,26 +418,20 @@ async function loadAllData() {
     document.getElementById('loader-screen').style.display = 'flex';
     
     try {
-        const [teachersRes, groupsRes, studentsRes, attendanceRes, paymentsRes, examsRes] = await Promise.all([
-            getData('Teachers'),
-            getData('Groups'),
-            getData('Students'),
-            getData('Attendance'),
-            getData('Payments'),
-            getData('Exams')
-        ]);
+        const payload = { action: 'getAllData' };
+        const data = await googleApiRequest(payload);
 
-        allTeachers = teachersRes;
-        allGroups = groupsRes;
-        allStudents = studentsRes;
-        allAttendance = (attendanceRes || []).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        allPayments = paymentsRes;
-        allExams = (examsRes || []).map(exam => ({ ...exam, grades: JSON.parse(exam.grades || '[]') }));
+        allTeachers = data.Teachers || [];
+        allGroups = data.Groups || [];
+        allStudents = data.Students || [];
+        allAttendance = (data.Attendance || []).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        allPayments = data.Payments || [];
+        allExams = (data.Exams || []).map(exam => ({ ...exam, grades: JSON.parse(exam.grades || '[]') }));
 
         renderAll();
     } catch (error) {
-        console.error("Failed to load data from Google Script:", error);
-        alert("فشل تحميل البيانات. يرجى التأكد من صحة رابط Google Script وأنك قمت بنشره بشكل صحيح مع إعطاء صلاحية الوصول للجميع (Anyone).");
+        console.error("Failed to load data:", error);
+        alert("فشل تحميل البيانات. يرجى التأكد من صحة رابط Google Script وأنك قمت بنشره بشكل صحيح.");
     } finally {
         document.getElementById('loader-screen').style.display = 'none';
     }
@@ -450,6 +449,7 @@ function renderAll() {
     populateGroupsDropdown('exam-group');
     populateGroupsDropdown('view-exam-group-filter');
     populateExamFilter();
+    populateTeacherReportDropdown();
 }
 
 
@@ -465,20 +465,32 @@ function renderDashboard() {
 function renderTeachersTable() {
     const tableBody = document.getElementById('teachers-table-body');
     tableBody.innerHTML = '';
-    allTeachers.forEach(t => { tableBody.innerHTML += `<tr><td>${t.name}</td><td>${t.subject}</td><td>${t.percentage}%</td><td><button class="btn btn-danger btn-sm" onclick="deleteData('Teachers', 'id', '${t.id}')">حذف</button></td></tr>`; });
+    allTeachers.forEach(t => { 
+        tableBody.innerHTML += `<tr>
+            <td>${sanitizeHTML(t.name)}</td>
+            <td>${sanitizeHTML(t.subject)}</td>
+            <td>${sanitizeHTML(t.percentage)}%</td>
+            <td><button class="btn btn-danger btn-sm delete-btn" onclick="deleteData('Teachers', 'id', '${t.id}')">حذف</button></td>
+        </tr>`; 
+    });
 }
 
 function populateTeachersDropdown() {
     const select = document.getElementById('group-teacher');
     select.innerHTML = '<option value="">اختر مدرس...</option>';
-    allTeachers.forEach(t => { select.innerHTML += `<option value="${t.name}">${t.name}</option>`; });
+    allTeachers.forEach(t => { select.innerHTML += `<option value="${t.name}">${sanitizeHTML(t.name)}</option>`; });
 }
 
 function renderGroupsTable() {
     const tableBody = document.getElementById('groups-table-body');
     tableBody.innerHTML = '';
     allGroups.forEach(g => {
-        tableBody.innerHTML += `<tr><td>${g.name}</td><td>${g.teacherName || 'غير محدد'}</td><td>${g.schedule}</td><td><button class="btn btn-danger btn-sm" onclick="deleteData('Groups', 'id', '${g.id}')">حذف</button></td></tr>`;
+        tableBody.innerHTML += `<tr>
+            <td>${sanitizeHTML(g.name)}</td>
+            <td>${sanitizeHTML(g.teacherName) || 'غير محدد'}</td>
+            <td>${sanitizeHTML(g.schedule)}</td>
+            <td><button class="btn btn-danger btn-sm delete-btn" onclick="deleteData('Groups', 'id', '${g.id}')">حذف</button></td>
+        </tr>`;
     });
 }
 
@@ -486,7 +498,7 @@ function populateGroupsDropdown(selectId) {
     const select = document.getElementById(selectId);
     const currentValue = select.value;
     select.innerHTML = '<option value="">اختر مجموعة...</option>';
-    allGroups.forEach(g => { select.innerHTML += `<option value="${g.id}">${g.name}</option>`; });
+    allGroups.forEach(g => { select.innerHTML += `<option value="${g.id}">${sanitizeHTML(g.name)}</option>`; });
     select.value = currentValue;
 }
 
@@ -497,13 +509,13 @@ function renderStudentsTable(filter = '') {
     filteredStudents.forEach(s => {
         const group = allGroups.find(g => g.id === s.groupId);
         tableBody.innerHTML += `<tr>
-            <td>${s.name}</td>
-            <td>${s.barcode}</td>
-            <td>${group ? group.name : 'بلا مجموعة'}</td>
-            <td>${s.stage}</td>
+            <td>${sanitizeHTML(s.name)}</td>
+            <td>${sanitizeHTML(s.barcode)}</td>
+            <td>${group ? sanitizeHTML(group.name) : 'بلا مجموعة'}</td>
+            <td>${sanitizeHTML(s.stage)}</td>
             <td>
                 <button class="btn btn-info btn-sm" onclick="showPage('student-details', '${s.id}')">التفاصيل</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteData('Students', 'id', '${s.id}')">حذف</button>
+                <button class="btn btn-danger btn-sm delete-btn" onclick="deleteData('Students', 'id', '${s.id}')">حذف</button>
             </td>
         </tr>`;
     });
@@ -518,9 +530,21 @@ function renderTeacherFinances() {
         const teacherStudentIds = allStudents.filter(s => teacherGroupIds.includes(s.groupId)).map(s => s.id);
         const totalRevenue = allPayments.filter(p => teacherStudentIds.includes(p.studentId)).reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
         const teacherShare = totalRevenue * (parseFloat(teacher.percentage || 0) / 100);
-        tableBody.innerHTML += `<tr><td>${teacher.name}</td><td>${totalRevenue.toFixed(2)} ج</td><td>${teacher.percentage || 0}%</td><td>${teacherShare.toFixed(2)} ج</td></tr>`;
+        tableBody.innerHTML += `<tr>
+            <td>${sanitizeHTML(teacher.name)}</td>
+            <td>${totalRevenue.toFixed(2)} ج</td>
+            <td>${teacher.percentage || 0}%</td>
+            <td>${teacherShare.toFixed(2)} ج</td>
+        </tr>`;
     });
 }
+
+function populateTeacherReportDropdown() {
+    const select = document.getElementById('report-teacher-select');
+    select.innerHTML = '<option value="all">كل المدرسين</option>';
+    allTeachers.forEach(t => { select.innerHTML += `<option value="${t.name}">${sanitizeHTML(t.name)}</option>`; });
+}
+
 
 function renderAttendanceLog() {
     const dateFilter = document.getElementById('attendance-date-filter').value;
@@ -538,8 +562,8 @@ function renderAttendanceLog() {
             const group = allGroups.find(g => g.id === student.groupId);
             const aDate = new Date(att.timestamp);
             tableBody.innerHTML += `<tr>
-                <td>${student.name}</td>
-                <td>${group ? group.name : 'غير محدد'}</td>
+                <td>${sanitizeHTML(student.name)}</td>
+                <td>${group ? sanitizeHTML(group.name) : 'غير محدد'}</td>
                 <td>${aDate.toLocaleDateString('ar-EG')}</td>
                 <td>${aDate.toLocaleTimeString('ar-EG')}</td>
             </tr>`;
@@ -554,7 +578,7 @@ function populateExamFilter() {
     if (groupId) {
         const groupExams = allExams.filter(ex => ex.groupId === groupId);
         groupExams.forEach(ex => {
-            examSelect.innerHTML += `<option value="${ex.id}">${ex.name}</option>`;
+            examSelect.innerHTML += `<option value="${ex.id}">${sanitizeHTML(ex.name)}</option>`;
         });
     }
     renderExamResults();
@@ -570,7 +594,7 @@ function renderExamResults() {
             exam.grades.forEach(grade => {
                 const student = allStudents.find(s => s.id === grade.studentId);
                 tableBody.innerHTML += `<tr>
-                    <td>${student ? student.name : 'طالب محذوف'}</td>
+                    <td>${student ? sanitizeHTML(student.name) : 'طالب محذوف'}</td>
                     <td>${grade.grade}</td>
                 </tr>`;
             });
@@ -586,7 +610,7 @@ function renderStudentDetails() {
         return;
     }
 
-    document.getElementById('student-details-name').innerText = `تفاصيل الطالب: ${student.name}`;
+    document.getElementById('student-details-name').innerText = `تفاصيل الطالب: ${sanitizeHTML(student.name)}`;
     
     const attendanceBody = document.getElementById('student-attendance-body');
     attendanceBody.innerHTML = '';
@@ -600,7 +624,7 @@ function renderStudentDetails() {
     allExams.forEach(exam => {
         const gradeInfo = exam.grades.find(g => g.studentId === student.id);
         if (gradeInfo) {
-            gradesBody.innerHTML += `<tr><td>${exam.name}</td><td>${gradeInfo.grade}</td></tr>`;
+            gradesBody.innerHTML += `<tr><td>${sanitizeHTML(exam.name)}</td><td>${gradeInfo.grade}</td></tr>`;
         }
     });
 }
@@ -612,7 +636,7 @@ async function addData(tabName, data) {
         sheetName: tabName,
         data: data
     };
-    await postData(payload);
+    await googleApiRequest(payload);
     loadAllData();
 }
 
@@ -624,7 +648,7 @@ async function deleteData(tabName, key, value) {
             key: key,
             value: value
         };
-        await postData(payload);
+        await googleApiRequest(payload);
         loadAllData();
     }
 }
@@ -728,7 +752,7 @@ function handleAttendance(e) {
             timestamp: new Date().toISOString()
         };
         addData('Attendance', data);
-        feedbackEl.innerHTML = `<div class="alert alert-success"><strong>حضور:</strong> ${student.name}<br><strong>الوقت:</strong> ${new Date().toLocaleTimeString()}</div>`;
+        feedbackEl.innerHTML = `<div class="alert alert-success"><strong>حضور:</strong> ${sanitizeHTML(student.name)}<br><strong>الوقت:</strong> ${new Date().toLocaleTimeString()}</div>`;
     } else {
         feedbackEl.innerHTML = `<div class="alert alert-danger"><strong>خطأ:</strong> الطالب غير مسجل.</div>`;
     }
@@ -745,11 +769,11 @@ function startGradesEntry(e) {
     tableBody.innerHTML = '';
     
     studentsInGroup.forEach(student => {
-        tableBody.innerHTML += `<tr><td>${student.name}</td><td><input type="number" class="form-control grade-input" data-student-id="${student.id}" placeholder="ادخل الدرجة"></td></tr>`;
+        tableBody.innerHTML += `<tr><td>${sanitizeHTML(student.name)}</td><td><input type="number" class="form-control grade-input" data-student-id="${student.id}" placeholder="ادخل الدرجة"></td></tr>`;
     });
     
     const examName = document.getElementById('exam-name').value;
-    document.getElementById('grades-entry-title').innerText = `رصد درجات امتحان "${examName}"`;
+    document.getElementById('grades-entry-title').innerText = `رصد درجات امتحان "${sanitizeHTML(examName)}"`;
     document.getElementById('grades-entry-card').style.display = 'block';
 }
 
@@ -781,6 +805,15 @@ function saveGrades() {
 
 // ===== APP INITIALIZATION =====
 function initializeApp() {
+    // Show/hide elements based on role
+    if (currentUser.role === 'admin') {
+        document.body.classList.add('admin');
+        document.getElementById('finance-details-card').style.display = 'block';
+    } else {
+        document.body.classList.remove('admin');
+        document.getElementById('finance-details-card').style.display = 'none';
+    }
+
     const navItems = `
         <li class="nav-item"><a class="nav-link active" onclick="showPage('dashboard')"><i class="bi bi-grid-1x2-fill"></i> لوحة التحكم</a></li>
         <li class="nav-item"><a class="nav-link" onclick="showPage('teachers')"><i class="bi bi-person-video3"></i> المدرسون</a></li>
@@ -788,11 +821,12 @@ function initializeApp() {
         <li class="nav-item"><a class="nav-link" onclick="showPage('students')"><i class="bi bi-people-fill"></i> الطلاب</a></li>
         <li class="nav-item"><a class="nav-link" onclick="showPage('attendance')"><i class="bi bi-check-circle-fill"></i> الحضور والغياب</a></li>
         <li class="nav-item"><a class="nav-link" onclick="showPage('grades')"><i class="bi bi-pencil-square"></i> الامتحانات والدرجات</a></li>
-        <li class="nav-item"><a class="nav-link" onclick="showPage('finance')"><i class="bi bi-cash-stack"></i> الإدارة المالية</a></li>
-        <li class="nav-item mt-3"><a class="nav-link text-warning" onclick="logout()"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</a></li>
+        <li class="nav-item finance-link" style="display: ${currentUser.role === 'admin' ? 'block' : 'none'}"><a class="nav-link" onclick="showPage('finance')"><i class="bi bi-cash-stack"></i> الإدارة المالية</a></li>
+        <li class="nav-item mt-3"><a class="nav-link text-danger" onclick="logout()"><i class="bi bi-box-arrow-right"></i> تسجيل الخروج</a></li>
     `;
     document.getElementById('desktop-nav-links').innerHTML = navItems;
     document.getElementById('mobile-nav-links').innerHTML = navItems;
+    document.getElementById('user-info').innerText = `مرحباً، ${sanitizeHTML(currentUser.email)}`;
 
     loadAllData();
     showPage('dashboard');
@@ -809,6 +843,7 @@ function initializeApp() {
     document.getElementById('attendance-date-filter').addEventListener('change', renderAttendanceLog);
     document.getElementById('view-exam-group-filter').addEventListener('change', populateExamFilter);
     document.getElementById('view-exam-filter').addEventListener('change', renderExamResults);
+    document.getElementById('print-report-btn').addEventListener('click', printTeacherReport);
 }
 
 function printReceipt() {
@@ -821,12 +856,77 @@ function printReceipt() {
     printWindow.document.write('</body></html>');
     printWindow.document.close();
     printWindow.print();
+    location.reload();
 }
+
+function printTeacherReport() {
+    const selectedTeacherName = document.getElementById('report-teacher-select').value;
+    const teachersToReport = selectedTeacherName === 'all' 
+        ? allTeachers 
+        : allTeachers.filter(t => t.name === selectedTeacherName);
+
+    let reportHtml = `
+        <html>
+        <head>
+            <title>تقرير حسابات المدرسين</title>
+            <link rel="stylesheet" href="[https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css](https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css)">
+            <style>
+                body { font-family: 'Tajawal', sans-serif; direction: rtl; }
+                @import url('[https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap](https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap)');
+                .report-container { max-width: 800px; margin: auto; padding: 2rem; }
+                .report-header { text-align: center; margin-bottom: 2rem; border-bottom: 2px solid #dee2e6; padding-bottom: 1rem; }
+                .teacher-card { border: 1px solid #dee2e6; border-radius: .5rem; padding: 1.5rem; margin-bottom: 1.5rem; }
+                .student-codes { font-size: 0.9rem; color: #6c757d; word-wrap: break-word; }
+            </style>
+        </head>
+        <body>
+            <div class="report-container">
+                <div class="report-header">
+                    <h1>تقرير حسابات المدرسين</h1>
+                    <p class="lead">تاريخ التقرير: ${new Date().toLocaleDateString('ar-EG')}</p>
+                </div>
+    `;
+
+    teachersToReport.forEach(teacher => {
+        const teacherGroups = allGroups.filter(g => g.teacherName === teacher.name);
+        const teacherGroupIds = teacherGroups.map(g => g.id);
+        const teacherStudentIds = allStudents.filter(s => teacherGroupIds.includes(s.groupId)).map(s => s.id);
+        const teacherPayments = allPayments.filter(p => teacherStudentIds.includes(p.studentId));
+        
+        const totalRevenue = teacherPayments.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+        const teacherShare = totalRevenue * (parseFloat(teacher.percentage || 0) / 100);
+
+        const payingStudentCodes = teacherPayments
+            .map(p => allStudents.find(s => s.id === p.studentId)?.barcode)
+            .filter((code, index, self) => code && self.indexOf(code) === index) // Get unique codes
+            .join(' - ');
+
+        reportHtml += `
+            <div class="teacher-card">
+                <h4>${sanitizeHTML(teacher.name)}</h4>
+                <hr>
+                <p><strong>إجمالي الإيرادات:</strong> ${totalRevenue.toFixed(2)} ج</p>
+                <p><strong>نسبة المدرس:</strong> ${teacher.percentage || 0}%</p>
+                <p><strong>مستحقات المدرس:</strong> ${teacherShare.toFixed(2)} ج</p>
+                <hr>
+                <p><strong>أكواد الطلاب الذين قاموا بالدفع:</strong></p>
+                <p class="student-codes">${sanitizeHTML(payingStudentCodes) || 'لا يوجد'}</p>
+            </div>
+        `;
+    });
+
+    reportHtml += `</div></body></html>`;
+
+    const printWindow = window.open('', '', 'height=800,width=1000');
+    printWindow.document.write(reportHtml);
+    printWindow.document.close();
+    printWindow.print();
+}
+
 
 // Initial check
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('login-form').addEventListener('submit', handleLogin);
-    document.getElementById('test-connection-btn').addEventListener('click', testConnection);
+    document.getElementById('login-btn').addEventListener('click', handleLogin);
     checkLogin();
 });
 </script>
