@@ -125,19 +125,61 @@
             </nav>
 
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4 main-content">
-                <!-- Pages are identical to the previous version -->
+                <!-- Dashboard Page -->
                 <div id="dashboard" class="page active">
                     <h3>لوحة التحكم</h3>
+                    <!-- Main Stats -->
                     <div class="row mt-4">
-                        <div class="col-lg-3 col-md-6 mb-4"><div class="card stat-card bg-primary p-3"><div class="d-flex justify-content-between align-items-center"><div><h5>الطلاب</h5><h2 id="total-students-stat">0</h2></div><div class="card-icon">🧑‍🎓</div></div></div></div>
-                        <div class="col-lg-3 col-md-6 mb-4"><div class="card stat-card bg-info p-3"><div class="d-flex justify-content-between align-items-center"><div><h5>المدرسون</h5><h2 id="total-teachers-stat">0</h2></div><div class="card-icon">👨‍🏫</div></div></div></div>
-                        <div class="col-lg-3 col-md-6 mb-4"><div class="card stat-card bg-secondary p-3"><div class="d-flex justify-content-between align-items-center"><div><h5>المجموعات</h5><h2 id="total-groups-stat">0</h2></div><div class="card-icon">📚</div></div></div></div>
-                        <div class="col-lg-3 col-md-6 mb-4"><div class="card stat-card bg-success p-3"><div class="d-flex justify-content-between align-items-center"><div><h5>الإيرادات</h5><h2 id="total-revenue-stat">0</h2></div><div class="card-icon">💵</div></div></div></div>
+                        <div class="col-lg-4 col-md-6 mb-4"><div class="card stat-card bg-primary p-3"><div class="d-flex justify-content-between align-items-center"><div><h5>الطلاب</h5><h2 id="total-students-stat">0</h2></div><div class="card-icon">🧑‍🎓</div></div></div></div>
+                        <div class="col-lg-4 col-md-6 mb-4"><div class="card stat-card bg-info p-3"><div class="d-flex justify-content-between align-items-center"><div><h5>المدرسون</h5><h2 id="total-teachers-stat">0</h2></div><div class="card-icon">👨‍🏫</div></div></div></div>
+                        <div class="col-lg-4 col-md-6 mb-4"><div class="card stat-card bg-secondary p-3"><div class="d-flex justify-content-between align-items-center"><div><h5>المجموعات</h5><h2 id="total-groups-stat">0</h2></div><div class="card-icon">📚</div></div></div></div>
+                    </div>
+
+                    <!-- Daily Stats -->
+                    <h4 class="mt-4 border-bottom pb-2">إحصائيات اليوم</h4>
+                    <div class="row mt-3">
+                        <!-- Daily Revenue Card (Password Protected) -->
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div id="show-daily-revenue-prompt">
+                                <div class="card p-3 h-100 d-flex flex-column justify-content-center align-items-center bg-light">
+                                    <h5 class="card-title text-muted">إيرادات اليوم</h5>
+                                    <i class="bi bi-lock-fill fs-2 text-muted my-2"></i>
+                                    <button id="show-daily-revenue-btn" class="btn btn-primary btn-sm mt-2">عرض البيانات</button>
+                                </div>
+                            </div>
+                            <div id="daily-revenue-view" style="display: none;">
+                                <div class="card stat-card bg-warning p-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div><h5>إيرادات اليوم</h5><h2 id="daily-revenue-stat">0</h2></div>
+                                        <div class="card-icon">💰</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         <!-- Daily Attendance Card -->
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card stat-card p-3" style="background-color: #17a2b8;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div><h5>حضور اليوم</h5><h2 id="daily-attendance-stat">0</h2></div>
+                                    <div class="card-icon">✅</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- New Students Card -->
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card stat-card p-3" style="background-color: #28a745;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div><h5>طلاب جدد اليوم</h5><h2 id="daily-new-students-stat">0</h2></div>
+                                    <div class="card-icon">✨</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
+                <!-- Other Pages (Teachers, Groups, etc.) -->
                 <div id="teachers" class="page">
-                     <h3>إدارة المدرسين</h3>
+                    <h3>إدارة المدرسين</h3>
                     <div class="card p-3 mb-4"><form id="add-teacher-form" class="row g-3 align-items-end"><div class="col-md-5"><label class="form-label">اسم المدرس</label><input type="text" id="teacher-name" class="form-control" required></div><div class="col-md-4"><label class="form-label">المادة</label><input type="text" id="teacher-subject" class="form-control" required></div><div class="col-md-2"><label class="form-label">النسبة (%)</label><input type="number" id="teacher-percentage" class="form-control" required min="0" max="100"></div><div class="col-md-1"><button type="submit" class="btn btn-primary w-100">إضافة</button></div></form></div>
                     <div class="card p-3"><h5 class="card-title">قائمة المدرسين</h5><div class="table-responsive"><table class="table table-striped"><thead><tr><th>الاسم</th><th>المادة</th><th>النسبة</th><th>إجراءات</th></tr></thead><tbody id="teachers-table-body"></tbody></table></div></div>
                 </div>
@@ -171,7 +213,7 @@
                         <input type="text" id="barcode-input" class="form-control form-control-lg" placeholder="في انتظار قراءة الباركود...">
                         <div id="attendance-feedback" class="mt-3"></div>
                     </div>
-                     <div class="card p-3">
+                    <div class="card p-3">
                         <h5 class="card-title">سجل الحضور</h5>
                         <div class="row mb-3 g-3">
                             <div class="col-md-4"><label class="form-label">فلترة بالتاريخ</label><input type="date" id="attendance-date-filter" class="form-control"></div>
@@ -200,7 +242,7 @@
                         <div class="table-responsive"><table class="table"><thead><tr><th>اسم الطالب</th><th>الدرجة</th></tr></thead><tbody id="grades-entry-body"></tbody></table></div>
                         <button class="btn btn-success mt-3" id="save-grades-btn">حفظ جميع الدرجات</button>
                     </div>
-                     <div class="card p-3">
+                    <div class="card p-3">
                         <h5 class="card-title">عرض نتائج الامتحانات</h5>
                         <div class="row g-3 mb-3 align-items-end">
                             <div class="col-md-5"><label class="form-label">اختر المجموعة</label><select id="view-exam-group-filter" class="form-select"></select></div>
@@ -247,12 +289,12 @@
                             </div>
                         </div>
                         <div id="show-finances-prompt">
-                             <button id="show-finances-btn" class="btn btn-primary">عرض حسابات المدرسين والأرباح</button>
+                            <button id="show-finances-btn" class="btn btn-primary">عرض حسابات المدرسين والأرباح</button>
                         </div>
                     </div>
                 </div>
                 
-                 <div id="student-details" class="page">
+                <div id="student-details" class="page">
                     <button class="btn btn-secondary mb-3" onclick="showPage('students')"><i class="bi bi-arrow-right"></i> العودة إلى قائمة الطلاب</button>
                     <h3 id="student-details-name"></h3>
                     <div class="row">
@@ -318,7 +360,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="showPage('dashboard')"></button>
             </div>
             <div class="modal-body">
-                <p>لعرض بيانات المدرسين المالية، يرجى إدخال كلمة المرور.</p>
+                <p>لعرض البيانات المالية، يرجى إدخال كلمة المرور.</p>
                 <form id="finance-password-form">
                     <div class="form-floating mb-3">
                         <input type="password" class="form-control" id="finance-password-input" placeholder="Password" required>
@@ -449,8 +491,6 @@ function checkFinanceAuthTimeout() {
             sessionStorage.removeItem('financeUnlocked');
             sessionStorage.removeItem('financeUnlockTimestamp');
             updateFinanceView();
-            // Optionally notify the user
-            // alert('انتهت صلاحية جلسة الوصول للبيانات المالية.');
         }
     }
 }
@@ -510,13 +550,15 @@ function showFinanceDetails() {
 }
 
 function updateFinanceView() {
-    if (sessionStorage.getItem('financeUnlocked') === 'true') {
-        document.getElementById('teacher-finances-view').style.display = 'block';
-        document.getElementById('show-finances-prompt').style.display = 'none';
-    } else {
-        document.getElementById('teacher-finances-view').style.display = 'none';
-        document.getElementById('show-finances-prompt').style.display = 'block';
-    }
+    const isUnlocked = sessionStorage.getItem('financeUnlocked') === 'true';
+
+    // Toggle Finance Page elements
+    document.getElementById('teacher-finances-view').style.display = isUnlocked ? 'block' : 'none';
+    document.getElementById('show-finances-prompt').style.display = isUnlocked ? 'none' : 'block';
+
+    // Toggle Dashboard Page elements (Daily Revenue)
+    document.getElementById('daily-revenue-view').style.display = isUnlocked ? 'block' : 'none';
+    document.getElementById('show-daily-revenue-prompt').style.display = isUnlocked ? 'none' : 'block';
 }
 
 
@@ -562,18 +604,39 @@ function renderAll() {
     populateGroupsDropdown('exam-group');
     populateGroupsDropdown('view-exam-group-filter');
     populateExamFilter();
-    updateFinanceView();
+    updateFinanceView(); // This function now updates both dashboard and finance views
     populateTeacherReportDropdown();
 }
 
 
 // ===== RENDER FUNCTIONS =====
 function renderDashboard() {
+    // General Stats
     document.getElementById('total-students-stat').innerText = allStudents.length;
     document.getElementById('total-teachers-stat').innerText = allTeachers.length;
     document.getElementById('total-groups-stat').innerText = allGroups.length;
-    const totalRevenue = allPayments.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
-    document.getElementById('total-revenue-stat').innerText = `${totalRevenue} ج`;
+
+    // Daily Stats
+    const today = new Date().toISOString().slice(0, 10);
+
+    // Daily Revenue
+    const dailyRevenue = allPayments
+        .filter(p => p.date && p.date.slice(0, 10) === today)
+        .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+    document.getElementById('daily-revenue-stat').innerText = `${dailyRevenue.toFixed(2)} ج`;
+    
+    // Daily Attendance
+    const dailyAttendance = allAttendance.filter(att => att.timestamp && att.timestamp.slice(0, 10) === today).length;
+    document.getElementById('daily-attendance-stat').innerText = dailyAttendance;
+
+    // New Students Today
+    const dailyNewStudents = allStudents.filter(s => {
+        const timestamp = parseInt(s.id.split('-')[2]);
+        if (isNaN(timestamp)) return false;
+        const registrationDate = new Date(timestamp).toISOString().slice(0, 10);
+        return registrationDate === today;
+    }).length;
+    document.getElementById('daily-new-students-stat').innerText = dailyNewStudents;
 }
 
 function renderTeachersTable() {
@@ -932,6 +995,7 @@ function initializeApp() {
     document.getElementById('view-exam-filter').addEventListener('change', renderExamResults);
     document.getElementById('finance-password-form').addEventListener('submit', handleFinanceLogin);
     document.getElementById('show-finances-btn').addEventListener('click', showFinanceDetails);
+    document.getElementById('show-daily-revenue-btn').addEventListener('click', showFinanceDetails); // Added listener for new button
     document.getElementById('print-report-btn').addEventListener('click', printTeacherReport);
 
     // Start finance auth timeout checker
